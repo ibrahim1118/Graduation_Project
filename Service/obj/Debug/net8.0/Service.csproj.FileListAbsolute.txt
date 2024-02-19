@@ -1,0 +1,15 @@
+D:\project\GraduationProject.PL\Service\bin\Debug\net8.0\Service.deps.json
+D:\project\GraduationProject.PL\Service\bin\Debug\net8.0\Service.dll
+D:\project\GraduationProject.PL\Service\bin\Debug\net8.0\Service.pdb
+D:\project\GraduationProject.PL\Service\bin\Debug\net8.0\DAL.dll
+D:\project\GraduationProject.PL\Service\bin\Debug\net8.0\DAL.pdb
+D:\project\GraduationProject.PL\Service\obj\Debug\net8.0\Service.csproj.AssemblyReference.cache
+D:\project\GraduationProject.PL\Service\obj\Debug\net8.0\Service.GeneratedMSBuildEditorConfig.editorconfig
+D:\project\GraduationProject.PL\Service\obj\Debug\net8.0\Service.AssemblyInfoInputs.cache
+D:\project\GraduationProject.PL\Service\obj\Debug\net8.0\Service.AssemblyInfo.cs
+D:\project\GraduationProject.PL\Service\obj\Debug\net8.0\Service.csproj.CoreCompileInputs.cache
+D:\project\GraduationProject.PL\Service\obj\Debug\net8.0\Service.csproj.CopyComplete
+D:\project\GraduationProject.PL\Service\obj\Debug\net8.0\Service.dll
+D:\project\GraduationProject.PL\Service\obj\Debug\net8.0\refint\Service.dll
+D:\project\GraduationProject.PL\Service\obj\Debug\net8.0\Service.pdb
+D:\project\GraduationProject.PL\Service\obj\Debug\net8.0\ref\Service.dll
