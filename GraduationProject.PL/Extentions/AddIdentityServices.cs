@@ -13,6 +13,8 @@ namespace GraduationProject.API.Extentions
     {
         public static IServiceCollection AddIdentityService(this IServiceCollection services, IConfiguration configuration)
         {
+
+
             services.AddScoped<ITokenService, TokenService>();
 
             services.AddIdentity<AppUser, IdentityRole>().
@@ -39,7 +41,8 @@ namespace GraduationProject.API.Extentions
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:key"]))
                 };
             });
-
+            //services.AddAutoMapper(o => o.AddProfile(new AutoMapperProfile()));
+           
             return services;
         }
     }

@@ -1,0 +1,15 @@
+D:\project\GraduationProject.PL\DAL\bin\Release\net8.0\DAL.deps.json
+D:\project\GraduationProject.PL\DAL\bin\Release\net8.0\DAL.runtimeconfig.json
+D:\project\GraduationProject.PL\DAL\bin\Release\net8.0\DAL.dll
+D:\project\GraduationProject.PL\DAL\bin\Release\net8.0\DAL.pdb
+D:\project\GraduationProject.PL\DAL\obj\Release\net8.0\DAL.csproj.AssemblyReference.cache
+D:\project\GraduationProject.PL\DAL\obj\Release\net8.0\DAL.GeneratedMSBuildEditorConfig.editorconfig
+D:\project\GraduationProject.PL\DAL\obj\Release\net8.0\DAL.AssemblyInfoInputs.cache
+D:\project\GraduationProject.PL\DAL\obj\Release\net8.0\DAL.AssemblyInfo.cs
+D:\project\GraduationProject.PL\DAL\obj\Release\net8.0\DAL.csproj.CoreCompileInputs.cache
+D:\project\GraduationProject.PL\DAL\obj\Release\net8.0\DAL.sourcelink.json
+D:\project\GraduationProject.PL\DAL\obj\Release\net8.0\DAL.dll
+D:\project\GraduationProject.PL\DAL\obj\Release\net8.0\refint\DAL.dll
+D:\project\GraduationProject.PL\DAL\obj\Release\net8.0\DAL.pdb
+D:\project\GraduationProject.PL\DAL\obj\Release\net8.0\DAL.genruntimeconfig.cache
+D:\project\GraduationProject.PL\DAL\obj\Release\net8.0\ref\DAL.dll

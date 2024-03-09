@@ -1,4 +1,5 @@
 ﻿using DAL.AuthEntity;
+using DAL.Entity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -15,5 +16,15 @@ namespace DAL.Data
         {
             
         }
+        public DbSet<Tips> Tips { get; set; }   
+
+        public DbSet<Disease> Diseases { get; set; }
+
+        public DbSet<Category> Categories { get; set; } 
+
+        public DbSet<Treatment> Treatments { get; set; }    
+
+        public DbSet<DiseaseTreatment> diseaseTreatments { get; set; }
+
     }
 }
