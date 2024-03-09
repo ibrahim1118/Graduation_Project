@@ -12,3 +12,4 @@ D:\project\GraduationProject.PL\DAL\obj\Debug\net8.0\refint\DAL.dll
 D:\project\GraduationProject.PL\DAL\obj\Debug\net8.0\DAL.pdb
 D:\project\GraduationProject.PL\DAL\obj\Debug\net8.0\DAL.genruntimeconfig.cache
 D:\project\GraduationProject.PL\DAL\obj\Debug\net8.0\ref\DAL.dll
+D:\project\GraduationProject.PL\DAL\obj\Debug\net8.0\DAL.sourcelink.json

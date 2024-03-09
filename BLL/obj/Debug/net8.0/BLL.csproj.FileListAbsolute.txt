@@ -13,3 +13,4 @@ D:\project\GraduationProject.PL\BLL\obj\Debug\net8.0\BLL.dll
 D:\project\GraduationProject.PL\BLL\obj\Debug\net8.0\refint\BLL.dll
 D:\project\GraduationProject.PL\BLL\obj\Debug\net8.0\BLL.pdb
 D:\project\GraduationProject.PL\BLL\obj\Debug\net8.0\ref\BLL.dll
+D:\project\GraduationProject.PL\BLL\obj\Debug\net8.0\BLL.sourcelink.json

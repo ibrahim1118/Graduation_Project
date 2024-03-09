@@ -13,3 +13,4 @@ D:\project\GraduationProject.PL\Service\obj\Debug\net8.0\Service.dll
 D:\project\GraduationProject.PL\Service\obj\Debug\net8.0\refint\Service.dll
 D:\project\GraduationProject.PL\Service\obj\Debug\net8.0\Service.pdb
 D:\project\GraduationProject.PL\Service\obj\Debug\net8.0\ref\Service.dll
+D:\project\GraduationProject.PL\Service\obj\Debug\net8.0\Service.sourcelink.json

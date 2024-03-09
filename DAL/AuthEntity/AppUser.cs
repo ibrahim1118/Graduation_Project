@@ -10,5 +10,7 @@ namespace DAL.AuthEntity
     public class AppUser : IdentityUser
     {
         public  string  FullName { get; set; }
+
+        public DateTime CreatedDate { get; set; }   
     }
 }
