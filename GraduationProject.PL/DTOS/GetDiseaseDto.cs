@@ -15,6 +15,8 @@ namespace GraduationProject.API.DTOS
         public string symptoms { get; set; }
 
         public CategoryDto Category { get; set; }
+
+        public IEnumerable<TreatmentDto> Treatments { get; set; }
         public byte[] Image { get; set; }
         public int CategoryId { get; set; }
     }

@@ -6,7 +6,10 @@ namespace GraduationProject.API.DTOS
     {
         public int Id { get; set; }
 
+        [Required]
+        [MinLength(3)]
         public string Name { get; set; }
+        [Required]
 
         public string Reasons { get; set; }
         [Required]
@@ -16,5 +19,7 @@ namespace GraduationProject.API.DTOS
 
         public IFormFile Image { get; set; }
         public int CategoryId { get; set; }
+
+        public List<int> Treatments { get; set; } = new List<int>();
     }
 }

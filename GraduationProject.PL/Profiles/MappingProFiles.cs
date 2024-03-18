@@ -2,6 +2,7 @@
 using DAL.AuthEntity;
 using DAL.Entity;
 using GraduationProject.API.DTOS;
+using Microsoft.AspNetCore.Identity;
 
 namespace GraduationProject.API.Profiles
 {
@@ -13,6 +14,8 @@ namespace GraduationProject.API.Profiles
            CreateMap<Category , CategoryDto>().ReverseMap();
            CreateMap<AddDiseasesDto, Disease>().ReverseMap();
             CreateMap <AppUser , userDataDto>().ReverseMap();
+            CreateMap<IdentityRole, RoleDto>().ReverseMap(); 
+            CreateMap<Treatment , TreatmentDto>().ReverseMap(); 
         }
     }
 }

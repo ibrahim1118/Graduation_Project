@@ -35,14 +35,16 @@ namespace GraduationProject.API.Controllers
                 symptoms = diseasesDto.symptoms,
                 Reasons = diseasesDto.Reasons,
                 Info = diseasesDto.Info,    
-                Image = dateStream.ToArray()
+                Image = dateStream.ToArray(),
+                Treatments = diseasesDto.Treatments.Select(x => new DiseaseTreatment() { TreatmentId = x}).ToList(),
+                
             };
             await  _diseaseRepositry.Add(disease); 
-            return Ok(new ApiRespones(200 , "Disease Added Succefule"));
+            return Ok(new ApiRespones(200 , "Disease Added Successfully"));
         }
 
-        [HttpGet("GetDiseaseByid")]
-        public async Task<ActionResult> GetDiseasebyid(int id)
+        [HttpGet("GetDiseaseById")]
+        public async Task<ActionResult> GetDiseaseById(int id)
         {
             var disease = await _diseaseRepositry.GetById(id);
             if (disease == null)
@@ -61,6 +63,7 @@ namespace GraduationProject.API.Controllers
                     Name = disease.Category.Name
                 },
                 Image = disease.Image,
+                
 
             };
             return Ok(resopone); 
@@ -86,6 +89,13 @@ namespace GraduationProject.API.Controllers
                            Id = d.Category.Id,
                            Name = d.Category.Name
                        },
+                       Treatments = d.Treatments.Select(d=> new TreatmentDto()
+                       {
+                           Id= d.Treatment.Id,
+                           Name = d.Treatment.Name,
+                           Description = d.Treatment.Description,
+                           
+                       }),
                        Image = d.Image,
 
                    }
@@ -93,7 +103,7 @@ namespace GraduationProject.API.Controllers
             return Ok(resopone);
         }
         [HttpDelete("DeleteDisease")]
-        public async Task<ActionResult> DeleteDiseas(int id)
+        public async Task<ActionResult> DeletDisease(int id)
         {
             var disease = await _diseaseRepositry.GetById(id);
             if (disease is null) 
@@ -101,11 +111,11 @@ namespace GraduationProject.API.Controllers
                 return NotFound(new ApiRespones(404 ,"Disease Not Found")); 
             }
             await _diseaseRepositry.Delete(disease);
-            return Ok(new ApiRespones(200 , "Disease Deleted"));
+            return Ok(new ApiRespones(200 , "Disease Deleted Successfully"));
         }
 
         [HttpGet("SearchByName")]
-        public async Task<ActionResult> SearchbyName(string name)
+        public async Task<ActionResult> SearchByName(string name)
         {
             var disease = await _diseaseRepositry.Serach(name);
             if (disease is null)

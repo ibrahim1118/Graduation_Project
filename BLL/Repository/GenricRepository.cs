@@ -34,7 +34,7 @@ namespace BLL.Repository
         {
             var type = typeof(T).Name;
             if (type =="Disease")
-              return await _context.Diseases.Include(d=>d.Category).ToListAsync() as IEnumerable<T>;
+              return await _context.Diseases.Include(d=>d.Category).Include(d=>d.Treatments).ThenInclude(d=>d.Treatment).ToListAsync() as IEnumerable<T>;
 
             return await _context.Set<T>().ToListAsync(); 
         
@@ -45,7 +45,7 @@ namespace BLL.Repository
            var type =typeof(T).Name;
            if (type=="Disease")
            {
-               return await _context.Diseases.Include(d => d.Category).FirstOrDefaultAsync(d => d.Id == id) as T; 
+               return await _context.Diseases.Include(d => d.Category).Include(d=>d.Treatments).ThenInclude(d=>d.Treatment).FirstOrDefaultAsync(d => d.Id == id) as T; 
            }
             return await _context.Set<T>().FindAsync(id); 
         }
