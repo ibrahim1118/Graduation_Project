@@ -11,7 +11,7 @@ namespace GraduationProject.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class CategoryController : ControllerBase
     {
         private readonly IGenricRepository<Category> _categoryRepo;
@@ -38,7 +38,7 @@ namespace GraduationProject.API.Controllers
             categoryDto.CreatedDate = DateTime.Now;
             var category = _mapper.Map<Category>(categoryDto);
             await _categoryRepo.Add(category);
-            return Ok(new ApiRespones(200 , "Category has added successful"));
+            return Ok(new ApiRespones(200 , "Category has added Successfully"));
         }
         [HttpDelete("DeleteCategory")]
         public async Task<ActionResult> DeleteCategory(int id)
@@ -47,10 +47,10 @@ namespace GraduationProject.API.Controllers
             if (category is null)
                 return NotFound(new ApiRespones(404));
             await _categoryRepo.Delete(category);
-            return Ok(new ApiRespones(200 , "Category has Deleteed successful"));
+            return Ok(new ApiRespones(200 , "Category has Deleted Successfully"));
         }
 
-        [HttpGet("GetCategoryByid")]
+        [HttpGet("GetCategoryById")]
         public async Task<ActionResult> GetTipByid(int id)
         {
             var tip = await _categoryRepo.GetById(id);
@@ -72,7 +72,7 @@ namespace GraduationProject.API.Controllers
             category.Name = categoryDto.Name;
             category.CreatedDate = DateTime.Now;
             await _categoryRepo.Update(category);
-            return Ok(new ApiRespones(200 , "Category has Updated successful"));
+            return Ok(new ApiRespones(200 , "Category has Updated Successfully"));
         }
     }
 }

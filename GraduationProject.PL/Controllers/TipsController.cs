@@ -37,7 +37,7 @@ namespace GraduationProject.API.Controllers
             tipDto.CreateDate = DateTime.Now;
             var tip = _mapper.Map<Tips>(tipDto);
             await _tips.Add(tip);
-            return Ok(new ApiRespones(200 , "tip has added successful"));
+            return Ok(new ApiRespones(200 , "tip added Successfully"));
         }
         [HttpDelete("DeleteTip")]
         public async Task<ActionResult> DeleteTip(int id)
@@ -46,7 +46,7 @@ namespace GraduationProject.API.Controllers
             if (tip is null)
                 return NotFound(new ApiRespones(404));
            await _tips.Delete(tip);
-            return Ok(new ApiRespones(200 , "tip has Deleteed successful")); 
+            return Ok(new ApiRespones(200 , "tip Deleted Successfully")); 
         }
 
         [HttpGet("GetTipByid")]
@@ -71,7 +71,7 @@ namespace GraduationProject.API.Controllers
             tip.tips = tipDto.tips;
             tip.CreateDate = DateTime.Now;
            await _tips.Update(tip);
-            return Ok(new ApiRespones(200 , "tip has Updated successful")); 
+            return Ok(new ApiRespones(200 , "tip Updated Successfully")); 
         }
 
     }

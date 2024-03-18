@@ -38,12 +38,12 @@ namespace GraduationProject.API.Controllers
         }
 
 
-        [HttpGet("GetAllUser")]
-        public async Task<IActionResult> GetAllUser() 
+        [HttpGet("GetAllUsers")]
+       
+        public async Task<IActionResult> GetAllUser(int pageNumber , int pageSize) 
         {
 
-            var use = _userManager.Users.ToList();//.Skip
-                //(1).Take(3).ToList();
+            var use = await _userManager.Users.Skip((pageNumber-1)*pageSize).Take(pageSize).ToListAsync();
             
             var user = mapper.Map<IEnumerable<userDataDto>>(use);
             return Ok(user);
@@ -67,7 +67,13 @@ namespace GraduationProject.API.Controllers
             };
             var res = await _userManager.CreateAsync(user, model.Password);
             if (!res.Succeeded)
-                return BadRequest(new ApiRespones(400));
+            {
+                foreach (var erorr  in res.Errors)
+                {
+                    ModelState.AddModelError("", erorr.Description); 
+                }
+                return BadRequest(ModelState); 
+            }
             return Ok(new UserDto()
             {
                 FullName = user.FullName,
@@ -76,8 +82,8 @@ namespace GraduationProject.API.Controllers
             });
         }
 
-        [HttpPost("longin")]
-        public async Task<ActionResult<UserDto>> longin(LoginDTO model)
+        [HttpPost("lonIn")]
+        public async Task<ActionResult<UserDto>> lonIn(LoginDTO model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
@@ -130,7 +136,7 @@ namespace GraduationProject.API.Controllers
                 var user = await _userManager.FindByEmailAsync(model.Email);
                 var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
                 if (result.Succeeded)
-                    return Ok(new ApiRespones(200 , "Password Changed Success"));
+                    return Ok(new ApiRespones(200 , "Password Changed Successfully"));
 
                 foreach (var error in result.Errors)
                     ModelState.AddModelError(string.Empty, error.Description);
@@ -138,7 +144,7 @@ namespace GraduationProject.API.Controllers
              return BadRequest(ModelState);
             
         }
-        [HttpPost("CheangePassword")]
+        [HttpPost("ChangePassword")]
         [Authorize]
         public async Task<ActionResult> ChengePassword(ChangePasswordDto dto)
         {
@@ -150,7 +156,7 @@ namespace GraduationProject.API.Controllers
             var res = await _userManager.ChangePasswordAsync(user, dto.OldPassword, dto.NewPassword);
 
             if (res.Succeeded)
-                return Ok(new ApiRespones(200 , "password Changed Succefule"));
+                return Ok(new ApiRespones(200 , "password Changed Successfully"));
             foreach ( var  Erorr in res.Errors)
             {
                 ModelState.AddModelError("", Erorr.Description); 
@@ -159,13 +165,13 @@ namespace GraduationProject.API.Controllers
         }
 
         [HttpDelete("DeleteUser")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<ActionResult> DeleteUser(string Email)
         {
             var user =await _userManager.FindByEmailAsync(Email);
             var res = await _userManager.DeleteAsync(user);
             if (res.Succeeded)
-                return Ok(new ApiRespones(200, "User Delete Succe"));
+                return Ok(new ApiRespones(200, "User Deleted Successfully"));
             foreach (var Eror in res.Errors)
                 ModelState.AddModelError("", Eror.Description); 
              return BadRequest(ModelState);

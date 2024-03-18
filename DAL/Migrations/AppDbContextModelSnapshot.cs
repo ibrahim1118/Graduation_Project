@@ -207,12 +207,9 @@ namespace DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Name")
-                        .HasColumnType("int");
-
-                    b.Property<byte[]>("image")
+                    b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("varbinary(max)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
