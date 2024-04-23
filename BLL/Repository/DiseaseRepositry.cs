@@ -20,7 +20,7 @@ namespace BLL.Repository
         }
         public async Task<IEnumerable<Disease>> Serach(string name)
         {
-            var  dises = await _context.Diseases.Include(d => d.Category)
+            var  dises = await _context.Diseases.Include(d => d.Category).Include(p=>p.Treatments)
                 .Where(d => d.Name.Contains(name.ToLower())).ToListAsync();
             
             return dises; 

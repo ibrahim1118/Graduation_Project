@@ -23,6 +23,8 @@ builder.Services.AddDbContext<AppDbContext>(option =>
  option.UseSqlServer(builder.Configuration.GetConnectionString("ConStr")));
 
 builder.Services.AddScoped<IDiseaseRepositry, DiseaseRepositry>(); 
+builder.Services.AddScoped<IPostRepositry, PostRepostiry>(); 
+builder.Services.AddScoped<ICommentRepositry, CommentRepositry>(); 
 
 // Inject GenreicREposity
 builder.Services.AddScoped(typeof(IGenricRepository<>), typeof(GenricRepository<>));
@@ -39,10 +41,12 @@ builder.Services.AddCors(Option =>
 
 var app = builder.Build();
 
+app.UseStaticFiles();
+
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
 //{
-    app.UseSwagger();
+app.UseSwagger();
     app.UseSwaggerUI();
 //}
 
@@ -50,7 +54,6 @@ app.UseCors("MyPlicy");
 
 app.UseHttpsRedirection();
 
-app.UseStaticFiles();
 app.UseAuthentication(); 
 app.UseAuthorization();
 app.UseStaticFiles();

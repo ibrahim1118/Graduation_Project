@@ -37,20 +37,41 @@ namespace GraduationProject.API.Controllers
             this.mapper = mapper;
         }
 
+        [HttpGet("Profile")]
+        [Authorize]
+        public async Task<ActionResult> GetCurrentUser()
+        {
+            var Email = User.FindFirstValue(ClaimTypes.Email);
+            var user = await _userManager.FindByEmailAsync(Email);
+            if (user is null)
+                return Unauthorized(new ApiRespones(401));
+            var userdto = mapper.Map<userDataDto>(user);
+            return Ok(userdto);
+        }
+        [HttpPut("ChangeName")]
+        [Authorize]
+        public async Task<ActionResult> ChangeName(string NewName)
+        {
+            var Email = User.FindFirstValue(ClaimTypes.Email);
+            var user = await _userManager.FindByEmailAsync(Email);
+            if (user is null)
+                return Unauthorized(new ApiRespones(401));
+            user.FullName = NewName; 
+            await _userManager.UpdateAsync(user);
+            var userDot = mapper.Map<userDataDto>(user);
+            return Ok(userDot); 
+        }
 
         [HttpGet("GetAllUsers")]
-       
+        //[Authorize(Roles ="Admin")]
         public async Task<IActionResult> GetAllUser(int pageNumber , int pageSize) 
         {
 
-            var use = await _userManager.Users.Skip((pageNumber-1)*pageSize).Take(pageSize).ToListAsync();
-            
+            var use = await _userManager.Users.Skip((pageNumber-1)*pageSize).Take(pageSize).ToListAsync();  
             var user = mapper.Map<IEnumerable<userDataDto>>(use);
             return Ok(user);
           
         }
-
-
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDto model)
         {
@@ -82,7 +103,7 @@ namespace GraduationProject.API.Controllers
             });
         }
 
-        [HttpPost("lonIn")]
+        [HttpPost("logIn")]
         public async Task<ActionResult<UserDto>> lonIn(LoginDTO model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
@@ -105,26 +126,29 @@ namespace GraduationProject.API.Controllers
         public async Task<IActionResult> ForgertPassword(string Email)
         {
 
-            var user = await _userManager.FindByEmailAsync(Email); 
+            var user = await _userManager.FindByEmailAsync(Email);
             if (user is null)
             {
-                return NotFound(new ApiRespones(404)); 
+                return NotFound(new ApiRespones(404));
             }
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             //var resetPasswordLink = Url.Action("ResetPassword", "Account", new { Email = Email, Token = token }, Request.Scheme);
+            Random r = new Random();
+            var ConfirmationCode = r.Next(100000, 999999).ToString();
 
             var email = new Email()
             {
                 Subject = "Reset Your Password",
                 To = Email,
-                Body = "ForntEndURL"
+                Body = $"Confirmation Code : {ConfirmationCode}"
             };
             EmailSetting.SendEmail(email);
             return Ok(new ForgertPasswordDto
             {
                 Email = Email,
-                Token = token
-            }); ; 
+                Token = token,
+                ConfirmCode = ConfirmationCode
+            }); ;
 
         }
 
@@ -146,7 +170,7 @@ namespace GraduationProject.API.Controllers
         }
         [HttpPost("ChangePassword")]
         [Authorize]
-        public async Task<ActionResult> ChengePassword(ChangePasswordDto dto)
+        public async Task<ActionResult> ChangePassword(ChangePasswordDto dto)
         {
             var Email = User.FindFirstValue(ClaimTypes.Email);
             var user = await _userManager.FindByEmailAsync(Email);
@@ -163,12 +187,13 @@ namespace GraduationProject.API.Controllers
             }
             return BadRequest(ModelState);
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpDelete("DeleteUser")]
-        //[Authorize(Roles = "Admin")]
         public async Task<ActionResult> DeleteUser(string Email)
         {
             var user =await _userManager.FindByEmailAsync(Email);
+            if (user is null)
+                return NotFound(new ApiRespones(404)); 
             var res = await _userManager.DeleteAsync(user);
             if (res.Succeeded)
                 return Ok(new ApiRespones(200, "User Deleted Successfully"));

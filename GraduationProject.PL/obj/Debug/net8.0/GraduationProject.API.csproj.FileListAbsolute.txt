@@ -150,3 +150,4 @@ D:\project\GraduationProject.PL\GraduationProject.PL\bin\Debug\net8.0\Service.pd
 D:\project\GraduationProject.PL\GraduationProject.PL\obj\Debug\net8.0\GraduationProject.API.sourcelink.json
 D:\project\GraduationProject.PL\GraduationProject.PL\bin\Debug\net8.0\AutoMapper.dll
 D:\project\GraduationProject.PL\GraduationProject.PL\bin\Debug\net8.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
+D:\project\GraduationProject.PL\GraduationProject.PL\bin\Debug\net8.0\GraduationProject.API.staticwebassets.runtime.json

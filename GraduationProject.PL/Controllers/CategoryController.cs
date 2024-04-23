@@ -11,7 +11,7 @@ namespace GraduationProject.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
+   
     public class CategoryController : ControllerBase
     {
         private readonly IGenricRepository<Category> _categoryRepo;
@@ -25,6 +25,7 @@ namespace GraduationProject.API.Controllers
         }
 
         [HttpGet("GetAll")]
+        [Authorize]
         public async Task<ActionResult> GetAll()
         {
             var category = await _categoryRepo.GetAll();
@@ -33,24 +34,39 @@ namespace GraduationProject.API.Controllers
         }
 
         [HttpPost("AddCategory")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> AddCategory(CategoryDto categoryDto)
         {
             categoryDto.CreatedDate = DateTime.Now;
             var category = _mapper.Map<Category>(categoryDto);
-            await _categoryRepo.Add(category);
-            return Ok(new ApiRespones(200 , "Category has added Successfully"));
-        }
+            try {
+                await _categoryRepo.Add(category);
+                return Ok(new ApiRespones(200, "Category has added Successfully"));
+            } 
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            }
         [HttpDelete("DeleteCategory")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> DeleteCategory(int id)
         {
             var category = await _categoryRepo.GetById(id);
             if (category is null)
                 return NotFound(new ApiRespones(404));
-            await _categoryRepo.Delete(category);
-            return Ok(new ApiRespones(200 , "Category has Deleted Successfully"));
-        }
+            try {
+                await _categoryRepo.Delete(category);
+                return Ok(new ApiRespones(200, "Category has Deleted Successfully"));
+            } catch (Exception ex)
+            {
+                return NotFound(new ApiRespones(404 , ex.Message));
+            }
+            
+            }
 
         [HttpGet("GetCategoryById")]
+        [Authorize]
         public async Task<ActionResult> GetTipByid(int id)
         {
             var tip = await _categoryRepo.GetById(id);
@@ -61,18 +77,22 @@ namespace GraduationProject.API.Controllers
         }
 
         [HttpPut("EditCategory")]
-
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> Edit(CategoryDto categoryDto)
         {
             if (categoryDto.Id is null)
                 return BadRequest(new ApiRespones(400));
             var category = await _categoryRepo.GetById(categoryDto.Id.Value);
             if (category is null)
-                return NotFound(new ApiRespones(404 , $"No Category with {categoryDto.Id}"));
+                return NotFound(new ApiRespones(404, $"No Category with {categoryDto.Id}"));
             category.Name = categoryDto.Name;
             category.CreatedDate = DateTime.Now;
-            await _categoryRepo.Update(category);
-            return Ok(new ApiRespones(200 , "Category has Updated Successfully"));
-        }
+            try {
+                await _categoryRepo.Update(category);
+                return Ok(new ApiRespones(200, "Category has Updated Successfully"));
+            }
+             catch(Exception ex) { return BadRequest(
+                 new ApiRespones(404 , ex.Message));}
+            }
     }
 }

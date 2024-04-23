@@ -24,6 +24,7 @@ namespace GraduationProject.API.Controllers
         }
 
         [HttpGet("GetAll")]
+        [Authorize]
         public async Task<ActionResult> GetAll()
         {
             var Tips = await _tips.GetAll();  
@@ -32,6 +33,8 @@ namespace GraduationProject.API.Controllers
         }
 
         [HttpPost("AddTip")]
+        [Authorize(Roles = "Admin")]
+
         public async Task<ActionResult> AddTip(TipsDto tipDto)
         {
             tipDto.CreateDate = DateTime.Now;
@@ -40,6 +43,7 @@ namespace GraduationProject.API.Controllers
             return Ok(new ApiRespones(200 , "tip added Successfully"));
         }
         [HttpDelete("DeleteTip")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> DeleteTip(int id)
         {
             var tip = await _tips.GetById(id);
@@ -49,7 +53,8 @@ namespace GraduationProject.API.Controllers
             return Ok(new ApiRespones(200 , "tip Deleted Successfully")); 
         }
 
-        [HttpGet("GetTipByid")]
+        [HttpGet("GetTipById")]
+        [Authorize]
         public async Task<ActionResult> GetTipByid(int id)
         {
             var tip = await _tips.GetById(id);
@@ -60,7 +65,7 @@ namespace GraduationProject.API.Controllers
         }
 
         [HttpPut("EditTip")]
-
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> Edit(TipsDto tipDto)
         {
             if (tipDto.id is null)

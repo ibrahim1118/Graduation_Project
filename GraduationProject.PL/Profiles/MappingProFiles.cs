@@ -15,7 +15,12 @@ namespace GraduationProject.API.Profiles
            CreateMap<AddDiseasesDto, Disease>().ReverseMap();
             CreateMap <AppUser , userDataDto>().ReverseMap();
             CreateMap<IdentityRole, RoleDto>().ReverseMap(); 
-            CreateMap<Treatment , TreatmentDto>().ReverseMap(); 
+            CreateMap<Treatment , TreatmentDto>().ReverseMap();
+            CreateMap<Post, GetPostDto>()
+                .ForMember(p => p.Id, p => p.MapFrom(x => x.Id)).
+                 ForMember(p => p.Content, p => p.MapFrom(x => x.Content)).
+                 ForMember(p => p.Image, p => p.MapFrom(x => x.Image)).ReverseMap(); 
+            CreateMap<Comment , GetCommentDto>().ReverseMap();
         }
     }
 }

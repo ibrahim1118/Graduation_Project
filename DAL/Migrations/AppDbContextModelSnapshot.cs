@@ -114,6 +114,81 @@ namespace DAL.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("DAL.Entity.Comment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AppUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DisLikes")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Image")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("likes")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
+
+                    b.HasIndex("ParentId");
+
+                    b.HasIndex("PostId");
+
+                    b.ToTable("Comments");
+                });
+
+            modelBuilder.Entity("DAL.Entity.CommentReact", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CommentId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("disLike")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("like")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("userId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CommentId");
+
+                    b.HasIndex("userId");
+
+                    b.ToTable("CommentReactes");
+                });
+
             modelBuilder.Entity("DAL.Entity.Disease", b =>
                 {
                     b.Property<int>("Id")
@@ -173,6 +248,71 @@ namespace DAL.Migrations
                     b.HasIndex("TreatmentId");
 
                     b.ToTable("diseaseTreatments");
+                });
+
+            modelBuilder.Entity("DAL.Entity.Post", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AppUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DisLikes")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Image")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("likes")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
+
+                    b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("DAL.Entity.PostReact", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("disLike")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("like")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("userId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("userId");
+
+                    b.ToTable("PostReactes");
                 });
 
             modelBuilder.Entity("DAL.Entity.Tips", b =>
@@ -349,6 +489,50 @@ namespace DAL.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("DAL.Entity.Comment", b =>
+                {
+                    b.HasOne("DAL.AuthEntity.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("AppUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DAL.Entity.Comment", "comment")
+                        .WithMany("comments")
+                        .HasForeignKey("ParentId");
+
+                    b.HasOne("DAL.Entity.Post", "post")
+                        .WithMany("Comments")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+
+                    b.Navigation("comment");
+
+                    b.Navigation("post");
+                });
+
+            modelBuilder.Entity("DAL.Entity.CommentReact", b =>
+                {
+                    b.HasOne("DAL.Entity.Comment", "comment")
+                        .WithMany()
+                        .HasForeignKey("CommentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DAL.AuthEntity.AppUser", "appUser")
+                        .WithMany()
+                        .HasForeignKey("userId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("appUser");
+
+                    b.Navigation("comment");
+                });
+
             modelBuilder.Entity("DAL.Entity.Disease", b =>
                 {
                     b.HasOne("DAL.Entity.Category", "Category")
@@ -363,13 +547,13 @@ namespace DAL.Migrations
             modelBuilder.Entity("DAL.Entity.DiseaseTreatment", b =>
                 {
                     b.HasOne("DAL.Entity.Disease", "Disease")
-                        .WithMany()
+                        .WithMany("Treatments")
                         .HasForeignKey("DiseaseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("DAL.Entity.Treatment", "Treatment")
-                        .WithMany()
+                        .WithMany("Diseases")
                         .HasForeignKey("TreatmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -377,6 +561,36 @@ namespace DAL.Migrations
                     b.Navigation("Disease");
 
                     b.Navigation("Treatment");
+                });
+
+            modelBuilder.Entity("DAL.Entity.Post", b =>
+                {
+                    b.HasOne("DAL.AuthEntity.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("AppUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+                });
+
+            modelBuilder.Entity("DAL.Entity.PostReact", b =>
+                {
+                    b.HasOne("DAL.Entity.Post", "post")
+                        .WithMany("postReacts")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DAL.AuthEntity.AppUser", "appUser")
+                        .WithMany()
+                        .HasForeignKey("userId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("appUser");
+
+                    b.Navigation("post");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -433,6 +647,28 @@ namespace DAL.Migrations
             modelBuilder.Entity("DAL.Entity.Category", b =>
                 {
                     b.Navigation("diseases");
+                });
+
+            modelBuilder.Entity("DAL.Entity.Comment", b =>
+                {
+                    b.Navigation("comments");
+                });
+
+            modelBuilder.Entity("DAL.Entity.Disease", b =>
+                {
+                    b.Navigation("Treatments");
+                });
+
+            modelBuilder.Entity("DAL.Entity.Post", b =>
+                {
+                    b.Navigation("Comments");
+
+                    b.Navigation("postReacts");
+                });
+
+            modelBuilder.Entity("DAL.Entity.Treatment", b =>
+                {
+                    b.Navigation("Diseases");
                 });
 #pragma warning restore 612, 618
         }
