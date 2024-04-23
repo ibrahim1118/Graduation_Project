@@ -16,6 +16,24 @@ namespace DAL.Data
         {
             
         }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Post>()
+            .HasMany(p => p.Comments)
+            .WithOne(c => c.post)
+            .HasForeignKey(c => c.PostId);
+
+            modelBuilder.Entity<Comment>()
+                .HasOne(c => c.post)
+                .WithMany(p => p.Comments)
+                .HasForeignKey(c => c.PostId);
+
+            modelBuilder.Entity<Comment>()
+                        .HasMany(c => c.comments)
+                        .WithOne(c => c.comment)
+                        .HasForeignKey(c => c.ParentId);
+        }
         public DbSet<Tips> Tips { get; set; }   
 
         public DbSet<Disease> Diseases { get; set; }
@@ -26,5 +44,12 @@ namespace DAL.Data
 
         public DbSet<DiseaseTreatment> diseaseTreatments { get; set; }
 
+        public DbSet<Post> Posts { get; set; }
+
+        public DbSet<Comment> Comments { get; set; }
+
+        public DbSet<PostReact> PostReactes { get; set; }
+        public DbSet<CommentReact> CommentReactes { get; set; }
+    
     }
 }

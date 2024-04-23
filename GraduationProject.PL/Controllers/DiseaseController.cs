@@ -3,6 +3,7 @@ using BLL.IRepository;
 using DAL.Entity;
 using GraduationProject.API.DTOS;
 using GraduationProject.API.ErrorsHandl;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -24,9 +25,10 @@ namespace GraduationProject.API.Controllers
         }
 
         [HttpPost("AddDisease")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> AddDisease(AddDiseasesDto diseasesDto)
         {
-            using var dateStream = new  MemoryStream();
+            using var dateStream = new MemoryStream();
             await diseasesDto.Image.CopyToAsync(dateStream);
             var disease = new Disease()
             {
@@ -34,16 +36,25 @@ namespace GraduationProject.API.Controllers
                 CategoryId = diseasesDto.CategoryId,
                 symptoms = diseasesDto.symptoms,
                 Reasons = diseasesDto.Reasons,
-                Info = diseasesDto.Info,    
+                Info = diseasesDto.Info,
                 Image = dateStream.ToArray(),
-                Treatments = diseasesDto.Treatments.Select(x => new DiseaseTreatment() { TreatmentId = x}).ToList(),
-                
+                Treatments = diseasesDto.Treatments.Select(x => new DiseaseTreatment() { TreatmentId = x }).ToList(),
+
             };
-            await  _diseaseRepositry.Add(disease); 
-            return Ok(new ApiRespones(200 , "Disease Added Successfully"));
-        }
+            try
+            {
+                await _diseaseRepositry.Add(disease);
+                return Ok(new ApiRespones(200, "Disease Added Successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiRespones(404, ex.Message));
+            }
+            
+            }
 
         [HttpGet("GetDiseaseById")]
+        [Authorize]
         public async Task<ActionResult> GetDiseaseById(int id)
         {
             var disease = await _diseaseRepositry.GetById(id);
@@ -69,6 +80,7 @@ namespace GraduationProject.API.Controllers
             return Ok(resopone); 
         }
         [HttpGet("GetAllDisease")]
+        [Authorize]
         public async Task<ActionResult> GetAllDisease()
         {
             var disease = await _diseaseRepositry.GetAll();
@@ -103,18 +115,26 @@ namespace GraduationProject.API.Controllers
             return Ok(resopone);
         }
         [HttpDelete("DeleteDisease")]
-        public async Task<ActionResult> DeletDisease(int id)
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> DeleteDisease(int id)
         {
             var disease = await _diseaseRepositry.GetById(id);
-            if (disease is null) 
+            if (disease is null)
             {
-                return NotFound(new ApiRespones(404 ,"Disease Not Found")); 
+                return NotFound(new ApiRespones(404, "Disease Not Found"));
             }
-            await _diseaseRepositry.Delete(disease);
-            return Ok(new ApiRespones(200 , "Disease Deleted Successfully"));
-        }
+            try {
+                await _diseaseRepositry.Delete(disease);
+                return Ok(new ApiRespones(200, "Disease Deleted Successfully"));
+            }
+            catch (Exception ex)
+            {
+                 return BadRequest(new ApiRespones(404 , ex.Message));
+            }
+            }
 
         [HttpGet("SearchByName")]
+        [Authorize]
         public async Task<ActionResult> SearchByName(string name)
         {
             var disease = await _diseaseRepositry.Serach(name);

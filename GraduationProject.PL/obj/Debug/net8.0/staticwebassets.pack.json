@@ -1,0 +1,53 @@
+{
+  "Files": [
+    {
+      "Id": "D:\\project\\GraduationProject.PL\\GraduationProject.PL\\wwwroot\\images\\Post\\1d9fcfd7-2da9-4ff0-8025-fd44294c13a5Screenshot (144).png",
+      "PackagePath": "staticwebassets\\images\\Post\\1d9fcfd7-2da9-4ff0-8025-fd44294c13a5Screenshot (144).png"
+    },
+    {
+      "Id": "D:\\project\\GraduationProject.PL\\GraduationProject.PL\\wwwroot\\images\\Post\\3928a4c2-895a-45f7-946e-31870b1f44efScreenshot (144).png",
+      "PackagePath": "staticwebassets\\images\\Post\\3928a4c2-895a-45f7-946e-31870b1f44efScreenshot (144).png"
+    },
+    {
+      "Id": "D:\\project\\GraduationProject.PL\\GraduationProject.PL\\wwwroot\\images\\Post\\3b556d3b-94a3-4f73-a126-9ac854881779Screenshot (154).png",
+      "PackagePath": "staticwebassets\\images\\Post\\3b556d3b-94a3-4f73-a126-9ac854881779Screenshot (154).png"
+    },
+    {
+      "Id": "D:\\project\\GraduationProject.PL\\GraduationProject.PL\\wwwroot\\images\\Post\\4d7d90db-d1da-4173-b226-3e723acb13beScreenshot (144).png",
+      "PackagePath": "staticwebassets\\images\\Post\\4d7d90db-d1da-4173-b226-3e723acb13beScreenshot (144).png"
+    },
+    {
+      "Id": "D:\\project\\GraduationProject.PL\\GraduationProject.PL\\wwwroot\\images\\Post\\57399d15-fd7d-4e94-ab58-bc530aa1b499Screenshot (154).png",
+      "PackagePath": "staticwebassets\\images\\Post\\57399d15-fd7d-4e94-ab58-bc530aa1b499Screenshot (154).png"
+    },
+    {
+      "Id": "D:\\project\\GraduationProject.PL\\GraduationProject.PL\\wwwroot\\images\\Post\\5bc4a14b-4f83-4445-b90f-abca7c771596Screenshot (143).png",
+      "PackagePath": "staticwebassets\\images\\Post\\5bc4a14b-4f83-4445-b90f-abca7c771596Screenshot (143).png"
+    },
+    {
+      "Id": "D:\\project\\GraduationProject.PL\\GraduationProject.PL\\wwwroot\\images\\Post\\7ef47249-414d-462f-b9f1-6b22c69c0ce2Screenshot (144).png",
+      "PackagePath": "staticwebassets\\images\\Post\\7ef47249-414d-462f-b9f1-6b22c69c0ce2Screenshot (144).png"
+    },
+    {
+      "Id": "D:\\project\\GraduationProject.PL\\GraduationProject.PL\\wwwroot\\images\\Post\\9c1bb261-5e2c-4819-8459-22e6605c8c4dScreenshot (144).png",
+      "PackagePath": "staticwebassets\\images\\Post\\9c1bb261-5e2c-4819-8459-22e6605c8c4dScreenshot (144).png"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.GraduationProject.API.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.GraduationProject.API.props",
+      "PackagePath": "build\\GraduationProject.API.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.GraduationProject.API.props",
+      "PackagePath": "buildMultiTargeting\\GraduationProject.API.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.GraduationProject.API.props",
+      "PackagePath": "buildTransitive\\GraduationProject.API.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

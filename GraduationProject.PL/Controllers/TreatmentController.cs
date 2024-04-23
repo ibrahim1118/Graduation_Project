@@ -3,6 +3,7 @@ using BLL.IRepository;
 using DAL.Entity;
 using GraduationProject.API.DTOS;
 using GraduationProject.API.ErrorsHandl;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,6 +24,7 @@ namespace GraduationProject.API.Controllers
         }
 
         [HttpGet("GetAll")]
+        [Authorize]
         public async Task<ActionResult> GetAll()
         {
             var treatments = await treatmentRepo.GetAll();
@@ -31,25 +33,40 @@ namespace GraduationProject.API.Controllers
         }
 
         [HttpPost("AddTreatment")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> AddTreatment(TreatmentDto treatmentDto)
         {
 
-            treatmentDto.Id = 0; 
+            treatmentDto.Id = 0;
             var treatment = _mapper.Map<Treatment>(treatmentDto);
-            await treatmentRepo.Add(treatment);
-            return Ok(new ApiRespones(200, "Treatment  added Successfully"));
+            try {
+                await treatmentRepo.Add(treatment);
+                return Ok(new ApiRespones(200, "Treatment  added Successfully"));
+             }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiRespones(404, ex.Message));
+            }
         }
         [HttpDelete("DeleteTreatment")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> DeleteTreatment(int id)
         {
-            var tip = await  treatmentRepo.GetById(id);
+            var tip = await treatmentRepo.GetById(id);
             if (tip is null)
                 return NotFound(new ApiRespones(404));
-            await treatmentRepo.Delete(tip);
-            return Ok(new ApiRespones(200, "Treatment  Deleted Successfully"));
+            try {
+                await treatmentRepo.Delete(tip);
+                return Ok(new ApiRespones(200, "Treatment  Deleted Successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiRespones(404, ex.Message));
+            }
         }
 
-        [HttpGet("GetTreatmentByid")]
+        [HttpGet("GetTreatmentById")]
+        [Authorize]
         public async Task<ActionResult> GetTreatmentByid(int id)
         {
             var treatment = await treatmentRepo.GetById(id);
@@ -60,18 +77,24 @@ namespace GraduationProject.API.Controllers
         }
 
         [HttpPut("EditTreatment")]
-
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> Edit(TreatmentDto treatmentDto)
         {
-            
+
             var treatment = await treatmentRepo.GetById(treatmentDto.Id);
             if (treatment is null)
                 return NotFound(new ApiRespones(404, $"No Treatment with {treatmentDto.Id}"));
             treatment.Name = treatmentDto.Name;
-            treatment.Description = treatmentDto.Description; 
-            await treatmentRepo.Update(treatment);
-            return Ok(new ApiRespones(200, "Treatment  Updated Successfully"));
-        }
+            treatment.Description = treatmentDto.Description;
+            try {
+                await treatmentRepo.Update(treatment);
+                return Ok(new ApiRespones(200, "Treatment  Updated Successfully"));
+            }catch (Exception ex)
+            {
+                return BadRequest(new ApiRespones(404 ,ex.Message));
+            }
+             
+            }
 
     }
 }

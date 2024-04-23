@@ -26,13 +26,14 @@ namespace GraduationProject.API.Controllers
             this.userManager = userManager;
         }
         [HttpGet("GetAll")]
+       // [Authorize(Roles ="Admin")]
         public async Task<ActionResult> GetAll()
         {
             var roles = mapper.Map<IEnumerable<RoleDto>>(await roleManager.Roles.ToListAsync()); 
             return Ok(roles);
         }
         [HttpGet("GetRoleById")]
-        
+        [Authorize(Roles ="Admin")]
         public async Task<ActionResult> GetRoleById(string id)
         {
             var role = await roleManager.FindByIdAsync(id);  
@@ -42,6 +43,7 @@ namespace GraduationProject.API.Controllers
             return Ok(roleDto);
         }
         [HttpPost("AddRole")]
+      //  [Authorize(Roles = "Admin")]
         public async Task <ActionResult> AddNewRole(RoleDto roleDto)
         {
             var role = await roleManager.RoleExistsAsync(roleDto.Name);
@@ -56,29 +58,43 @@ namespace GraduationProject.API.Controllers
         }
 
         [HttpDelete("DeleteRole")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(string id)
         {
             var role = await roleManager.FindByIdAsync(id);
             if (role is null)
-                return NotFound(new ApiRespones(404, "Role Not Found")); 
-            await roleManager.DeleteAsync(role);
+                return NotFound(new ApiRespones(404, "Role Not Found"));
 
-            return Ok(new ApiRespones(200 ,"Role Deleted"));
-        }
+            try {
+                await roleManager.DeleteAsync(role);
+                return Ok(new ApiRespones(200, "Role Deleted"));
+            }catch (Exception ex) 
+            {
+                return BadRequest(new ApiRespones(404, ex.Message));
+            }
+             
+            }
 
         [HttpPut("Edit Role")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> EditRole(RoleDto roleDto)
         {
             var role = await roleManager.FindByIdAsync(roleDto.Id);
             if (role == null)
                 return NotFound(new ApiRespones(404, $"No Role with this {roleDto.Id}"));
-            role.Name = roleDto.Name; 
-            await roleManager.UpdateAsync(role);
-            return Ok(new ApiRespones(200, "Roel Has Updated")); 
+            role.Name = roleDto.Name;
+            try {
+                await roleManager.UpdateAsync(role);
+                return Ok(new ApiRespones(200, "Roel Has Updated"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiRespones(404, ex.Message));
+            }
         }
 
         [HttpPost("AddAdmin")]
-        [Authorize]
+       // [Authorize(Roles ="Admin")]
         public async Task<ActionResult> AddAdmin(string Email)
         {
             var user = await userManager.FindByEmailAsync(Email);
