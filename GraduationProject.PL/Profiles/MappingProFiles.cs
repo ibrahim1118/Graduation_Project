@@ -10,7 +10,7 @@ namespace GraduationProject.API.Profiles
     {
        public MappingProFiles() 
         { 
-           CreateMap<Tips , TipsDto>().ReverseMap();
+           CreateMap<Tips , AddTipsDto>().ReverseMap();
            CreateMap<Category , CategoryDto>().ReverseMap();
            CreateMap<AddDiseasesDto, Disease>().ReverseMap();
             CreateMap <AppUser , userDataDto>().ReverseMap();
@@ -19,8 +19,10 @@ namespace GraduationProject.API.Profiles
             CreateMap<Post, GetPostDto>()
                 .ForMember(p => p.Id, p => p.MapFrom(x => x.Id)).
                  ForMember(p => p.Content, p => p.MapFrom(x => x.Content)).
-                 ForMember(p => p.Image, p => p.MapFrom(x => x.Image)).ReverseMap(); 
-            CreateMap<Comment , GetCommentDto>().ReverseMap();
+                 ForMember(p => p.Image, p => p.MapFrom(x => x.Image)).
+                 ForMember(p=>p.UserId , p=>p.MapFrom(x=>x.AppUserId)).ReverseMap(); 
+            CreateMap<Comment , GetCommentDto>().
+                ForMember(p=>p.UserId , p=>p.MapFrom(x=>x.AppUserId)).ReverseMap();
         }
     }
 }

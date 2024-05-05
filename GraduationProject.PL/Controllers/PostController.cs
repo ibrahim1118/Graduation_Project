@@ -27,16 +27,19 @@ namespace GraduationProject.API.Controllers
         private readonly IMapper mapper;
         private readonly IConfiguration configuration;
         private readonly UserManager<AppUser> userManager;
+        private readonly ICommentRepositry commentRepositry;
 
         public PostController(IPostRepositry postRepo,
             IMapper mapper,
             IConfiguration configuration,
-            UserManager<AppUser> userManager)
+            UserManager<AppUser> userManager , 
+            ICommentRepositry commentRepositry)
         {
             this.postRepo = postRepo;
             this.mapper = mapper;
             this.configuration = configuration;
             this.userManager = userManager;
+            this.commentRepositry = commentRepositry;
         }
         [HttpGet("GetAllPosts")]
         public async Task<ActionResult> GetAllPost()
@@ -62,6 +65,9 @@ namespace GraduationProject.API.Controllers
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var user = await userManager.FindByIdAsync(userId);
+                if (user is null)
+                    return BadRequest(new ApiRespones(400, "User Not Found"));
                 var pos = await postRepo.GetById(reactDto.ObjectId);
                 if (pos is null)
                 {
@@ -93,10 +99,9 @@ namespace GraduationProject.API.Controllers
         public async Task<ActionResult> AddPost([FromForm]AddPostDto posdto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId != posdto.AppUserId)
-            {
-                return BadRequest(new ApiRespones(400)); 
-            }
+            var user = await userManager.FindByIdAsync(userId);
+            if (user is null)
+                return BadRequest(new ApiRespones(400, "User Not Found"));
             string? ImageName = null; 
             if (posdto.Image is not null)
             {
@@ -178,6 +183,8 @@ namespace GraduationProject.API.Controllers
             try
             {
                 var user = await userManager.FindByIdAsync(userId);
+                if (user is null)
+                    return BadRequest(new ApiRespones(400, "InValid Token")); 
                 var rols = await userManager.GetRolesAsync(user);
                 if (userId!=post.AppUserId&&!rols.Any(r=> r=="Admin"))
                    return Unauthorized(new ApiRespones(401 , "Not Authorized"));
@@ -185,6 +192,14 @@ namespace GraduationProject.API.Controllers
                 ImageSetting.DeleteImage(post.Image, "Post");
                 foreach (var react in post.postReacts)
                     await postRepo.DeleteReact(react); 
+                foreach(var comment in post.Comments)
+                {
+                    if (comment.comments.Count > 0)
+                    { foreach (var comment2 in comment.comments)
+                            await commentRepositry.Delete(comment2);
+                    }
+                   await commentRepositry.Delete(comment); 
+                }
                 await postRepo.Delete(post);
                 return Ok(new ApiRespones(200, "Post Deleted")); 
             }catch (Exception ex)

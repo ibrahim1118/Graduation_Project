@@ -11,6 +11,7 @@ namespace DAL.AuthEntity
     {
         public  string  FullName { get; set; }
 
+        public string?  Image {  get; set; }
         public DateTime CreatedDate { get; set; }   
     }
 }

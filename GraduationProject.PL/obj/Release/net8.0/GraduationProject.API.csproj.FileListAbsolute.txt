@@ -150,3 +150,4 @@ D:\project\GraduationProject.PL\GraduationProject.PL\obj\Release\net8.0\refint\G
 D:\project\GraduationProject.PL\GraduationProject.PL\obj\Release\net8.0\GraduationProject.API.pdb
 D:\project\GraduationProject.PL\GraduationProject.PL\obj\Release\net8.0\GraduationProject.API.genruntimeconfig.cache
 D:\project\GraduationProject.PL\GraduationProject.PL\obj\Release\net8.0\ref\GraduationProject.API.dll
+D:\project\GraduationProject.PL\GraduationProject.PL\bin\Release\net8.0\GraduationProject.API.staticwebassets.runtime.json

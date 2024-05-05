@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Adminpanal.Hellper;
+using AutoMapper;
 using BLL.IRepository;
 using DAL.Entity;
 using GraduationProject.API.DTOS;
@@ -6,12 +7,13 @@ using GraduationProject.API.ErrorsHandl;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Cryptography.Xml;
 
 namespace GraduationProject.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class TipsController : ControllerBase
     {
         private readonly IGenricRepository<Tips> _tips;
@@ -27,30 +29,60 @@ namespace GraduationProject.API.Controllers
         [Authorize]
         public async Task<ActionResult> GetAll()
         {
-            var Tips = await _tips.GetAll();  
-            var TipsDto = _mapper.Map<IEnumerable<TipsDto>>(Tips).ToList();
+            var Tips = await _tips.GetAll();
+            var TipsDto = Tips.Select(t => new GetTipDto
+            {
+                id = t.id,
+                Image = t.Image,
+                Title = t.Title,
+                description = t.Description,
+                CreateDate = t.CreateDate
+
+            }); 
            return Ok(Tips);
         }
 
         [HttpPost("AddTip")]
         [Authorize(Roles = "Admin")]
 
-        public async Task<ActionResult> AddTip(TipsDto tipDto)
+        public async Task<ActionResult> AddTip(AddTipsDto tipDto)
         {
-            tipDto.CreateDate = DateTime.Now;
-            var tip = _mapper.Map<Tips>(tipDto);
-            await _tips.Add(tip);
-            return Ok(new ApiRespones(200 , "tip added Successfully"));
+            var ImageUrl = ""; 
+            if (tipDto.Image is not null)
+              ImageUrl= ImageSetting.UplodaImage(tipDto.Image, "Tips");
+            var tip = new Tips
+            {
+                Title = tipDto.Title,
+                Image = ImageUrl,
+                Description = tipDto.description,
+                CreateDate = DateTime.Now
+            };
+            try
+            {
+                await _tips.Add(tip); 
+                return Ok(new ApiRespones(200, "tip added Successfully"));
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(new ApiRespones(400, ex.Message)); 
+            }
         }
         [HttpDelete("DeleteTip")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> DeleteTip(int id)
         {
-            var tip = await _tips.GetById(id);
-            if (tip is null)
-                return NotFound(new ApiRespones(404));
-           await _tips.Delete(tip);
-            return Ok(new ApiRespones(200 , "tip Deleted Successfully")); 
+            try {
+                var tip = await _tips.GetById(id);
+                if (tip is null)
+                    return NotFound(new ApiRespones(404));
+                if (tip.Image is not null)
+                    ImageSetting.DeleteImage(tip.Image, "Tips");
+                await _tips.Delete(tip);
+                return Ok(new ApiRespones(200, "tip Deleted Successfully"));
+            }catch(Exception ex)
+            {
+                return BadRequest(new ApiRespones(400, ex.Message)); 
+            }
         }
 
         [HttpGet("GetTipById")]
@@ -59,24 +91,44 @@ namespace GraduationProject.API.Controllers
         {
             var tip = await _tips.GetById(id);
             if (tip is null)
-                return NotFound(new ApiRespones(404 , "This tip not Found")); 
-            var tipDto= _mapper.Map<TipsDto>(tip);
+                return NotFound(new ApiRespones(404 , "This tip not Found"));
+            var tipDto = new GetTipDto()
+            {
+                id = tip.id,
+                Image = tip.Image,
+                description = tip.Description,
+                CreateDate = tip.CreateDate,
+                Title = tip.Title
+            }; 
             return Ok(tipDto); 
         }
 
         [HttpPut("EditTip")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> Edit(TipsDto tipDto)
+        public async Task<ActionResult> Edit(AddTipsDto tipDto)
         {
-            if (tipDto.id is null)
-                return BadRequest(new ApiRespones(400));
-            var tip = await _tips.GetById(tipDto.id.Value);
-            if (tip is null)
-                return NotFound(new ApiRespones(404 , $"No Tips with {tipDto.id}"));
-            tip.tips = tipDto.tips;
-            tip.CreateDate = DateTime.Now;
-           await _tips.Update(tip);
-            return Ok(new ApiRespones(200 , "tip Updated Successfully")); 
+            try {
+                if (tipDto.id is null)
+                    return BadRequest(new ApiRespones(400));
+                var tip = await _tips.GetById(tipDto.id.Value);
+                if (tip is null)
+                    return NotFound(new ApiRespones(404, $"No Tips with {tipDto.id}"));
+                if (tipDto.Image is not null)
+                {
+                    if (tip.Image != null)
+                        ImageSetting.DeleteImage(tip.Image, "Tips");
+                    tip.Image = ImageSetting.UplodaImage(tipDto.Image, "Tips");
+                }
+                tip.Description = tipDto.description;
+                tip.Title = tipDto.Title;
+                tip.CreateDate = DateTime.Now;
+                await _tips.Update(tip);
+                return Ok(new ApiRespones(200, "tip Updated Successfully"));
+            }catch(Exception ex)
+            {
+                return BadRequest(new ApiRespones(400 ,ex.Message)); 
+            }
+
         }
 
     }

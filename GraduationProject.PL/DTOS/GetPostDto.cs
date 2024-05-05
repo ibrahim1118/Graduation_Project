@@ -11,6 +11,6 @@
         public int DisLikes { get; set; }
         public HashSet<GetCommentDto>? Comments { get; set; }  = new HashSet<GetCommentDto>();
        
-        public string AppuserId { get; set; }
+        public string UserId { get; set; }
     }
 }
