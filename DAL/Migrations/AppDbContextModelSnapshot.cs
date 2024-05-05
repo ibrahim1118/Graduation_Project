@@ -48,6 +48,9 @@ namespace DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Image")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
@@ -326,7 +329,14 @@ namespace DAL.Migrations
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("tips")
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Image")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -517,7 +527,7 @@ namespace DAL.Migrations
             modelBuilder.Entity("DAL.Entity.CommentReact", b =>
                 {
                     b.HasOne("DAL.Entity.Comment", "comment")
-                        .WithMany()
+                        .WithMany("Reactes")
                         .HasForeignKey("CommentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -651,6 +661,8 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("DAL.Entity.Comment", b =>
                 {
+                    b.Navigation("Reactes");
+
                     b.Navigation("comments");
                 });
 

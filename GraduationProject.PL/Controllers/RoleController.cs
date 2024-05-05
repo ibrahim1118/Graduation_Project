@@ -26,7 +26,7 @@ namespace GraduationProject.API.Controllers
             this.userManager = userManager;
         }
         [HttpGet("GetAll")]
-       // [Authorize(Roles ="Admin")]
+        [Authorize(Roles ="Admin")]
         public async Task<ActionResult> GetAll()
         {
             var roles = mapper.Map<IEnumerable<RoleDto>>(await roleManager.Roles.ToListAsync()); 
@@ -43,7 +43,7 @@ namespace GraduationProject.API.Controllers
             return Ok(roleDto);
         }
         [HttpPost("AddRole")]
-      //  [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task <ActionResult> AddNewRole(RoleDto roleDto)
         {
             var role = await roleManager.RoleExistsAsync(roleDto.Name);
@@ -94,7 +94,7 @@ namespace GraduationProject.API.Controllers
         }
 
         [HttpPost("AddAdmin")]
-       // [Authorize(Roles ="Admin")]
+        [Authorize(Roles ="Admin")]
         public async Task<ActionResult> AddAdmin(string Email)
         {
             var user = await userManager.FindByEmailAsync(Email);

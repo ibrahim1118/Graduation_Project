@@ -1,6 +1,7 @@
 ﻿using BLL.IRepository;
 using DAL.Data;
 using DAL.Entity;
+using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -26,6 +27,13 @@ namespace BLL.Repository
 
         public async Task Delete(T item)
         {
+            var type = typeof(T).Name; 
+            if (type==nameof(Comment))
+            {
+                var commen = item as Comment;
+                var rec = _context.CommentReactes.Where(c => c.CommentId == commen.Id); 
+                _context.RemoveRange(rec);
+            }
            _context.Set<T>().Remove(item);
            await _context.SaveChangesAsync();   
         }

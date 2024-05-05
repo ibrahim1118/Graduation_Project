@@ -57,7 +57,10 @@ namespace GraduationProject.API.Controllers
         public async Task<ActionResult> AddComment(AddCommentDto commentDto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var post = postRepo.GetById(commentDto.PostId); 
+            var post = postRepo.GetById(commentDto.PostId);
+            var user = await userManager.FindByIdAsync(userId);
+            if (user is null)
+                return BadRequest(new ApiRespones(400, "User Not Found")); 
             if (post is null)
             {
                 return BadRequest(new ApiRespones(500, "inCorrect post id ")); 
@@ -98,6 +101,9 @@ namespace GraduationProject.API.Controllers
         public async Task<ActionResult> AddReact(ReactDto reactDto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await userManager.FindByIdAsync(userId);
+            if (user is null)
+                return BadRequest(new ApiRespones(400, "User Not Found"));
             var comment = await commentRepo.GetById(reactDto.ObjectId);
             if (comment is null)
             {

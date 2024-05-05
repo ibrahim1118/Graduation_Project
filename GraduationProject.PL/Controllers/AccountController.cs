@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Adminpanal.Hellper;
+using AutoMapper;
 using Azure.Core;
 using DAL.AuthEntity;
 using GraduationProject.API.DTOS;
@@ -14,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Service.ImpService;
 using Service.IService;
 using System.Security.Claims;
+using static System.Net.Mime.MediaTypeNames;
 namespace GraduationProject.API.Controllers
 {
     [Route("api/[controller]")]
@@ -63,14 +65,18 @@ namespace GraduationProject.API.Controllers
         }
 
         [HttpGet("GetAllUsers")]
-        //[Authorize(Roles ="Admin")]
-        public async Task<IActionResult> GetAllUser(int pageNumber , int pageSize) 
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllUser(int pageNumber, int pageSize)
         {
 
-            var use = await _userManager.Users.Skip((pageNumber-1)*pageSize).Take(pageSize).ToListAsync();  
+            var use = await _userManager.Users.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
             var user = mapper.Map<IEnumerable<userDataDto>>(use);
-            return Ok(user);
-          
+            var respone = new GetAllUserRespons()
+            {
+                UsersNumber = _userManager.Users.Count(),
+                Users = user
+            }; 
+            return Ok(respone);
         }
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDto model)
@@ -201,7 +207,49 @@ namespace GraduationProject.API.Controllers
                 ModelState.AddModelError("", Eror.Description); 
              return BadRequest(ModelState);
         }
-       
+        [HttpPost("AddUserImage")]
+        [Authorize]
+        public async Task<ActionResult> AddUserImage(IFormFile Image)
+        {
+            try {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user is null)
+                    return BadRequest(new ApiRespones(400));
+                if (user.Image is not null)
+                    ImageSetting.DeleteImage(user.Image, "Users"); 
+                user.Image = ImageSetting.UplodaImage(Image, "Users");
+                await _userManager.UpdateAsync(user);
+    
+                ; return Ok(new ApiRespones(200, "Image Added"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiRespones(400, ex.Message));
+            }
+          
+        }
+        [HttpDelete("DeleteImage")]
+        [Authorize]
+        public async Task<ActionResult> DeleteImage()
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user is null)
+                    return BadRequest(new ApiRespones(400));
+                if (user.Image is not null)
+                    ImageSetting.DeleteImage(user.Image, "Users");
+           
+                await _userManager.UpdateAsync(user);
+                ; return Ok(new ApiRespones(200, "Image Deleted"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiRespones(400, ex.Message));
+            }
+        }
         [HttpGet("EmailExited")]
         public async Task<ActionResult<bool>> ChackEamil(string Email)
         {

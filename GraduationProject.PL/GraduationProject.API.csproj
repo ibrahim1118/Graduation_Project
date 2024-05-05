@@ -23,6 +23,8 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\images\Comment\" />
+    <Folder Include="wwwroot\images\Users\" />
+    <Folder Include="wwwroot\images\Tips\" />
     <Folder Include="wwwroot\images\Post\" />
   </ItemGroup>
 

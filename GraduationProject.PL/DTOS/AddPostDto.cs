@@ -11,7 +11,7 @@ namespace GraduationProject.API.DTOS
         public string Content { get; set; }
         public IFormFile? Image { get; set; }
 
-        public string AppUserId { get; set; }
+       
       
         
 
