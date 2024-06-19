@@ -26,7 +26,7 @@ namespace GraduationProject.API.Controllers
         }
 
         [HttpGet("GetAll")]
-        [Authorize]
+       // [Authorize]
         public async Task<ActionResult> GetAll()
         {
             var Tips = await _tips.GetAll();
@@ -68,7 +68,7 @@ namespace GraduationProject.API.Controllers
             }
         }
         [HttpDelete("DeleteTip")]
-        [Authorize(Roles = "Admin")]
+       // [Authorize(Roles = "Admin")]
         public async Task<ActionResult> DeleteTip(int id)
         {
             try {

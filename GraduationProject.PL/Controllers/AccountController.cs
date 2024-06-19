@@ -28,13 +28,14 @@ namespace GraduationProject.API.Controllers
         private readonly IMapper mapper;
 
         public AccountController(UserManager<AppUser> userManager ,
-            SignInManager<AppUser> signInManager, 
+            SignInManager<AppUser> signInManager,
+         
              ITokenService tokenService , 
              IMapper mapper
              )
         {
             _userManager = userManager;
-            this.signInManager = signInManager;
+             this.signInManager = signInManager;
             this.tokenService = tokenService;
             this.mapper = mapper;
         }
@@ -43,11 +44,18 @@ namespace GraduationProject.API.Controllers
         [Authorize]
         public async Task<ActionResult> GetCurrentUser()
         {
+          
             var Email = User.FindFirstValue(ClaimTypes.Email);
             var user = await _userManager.FindByEmailAsync(Email);
             if (user is null)
                 return Unauthorized(new ApiRespones(401));
-            var userdto = mapper.Map<userDataDto>(user);
+            var userdto = new UserDto
+            {
+                UserId = user.Id,
+                Image = user.Image,
+                FullName = user.FullName,
+                Email = user.Email
+            }; 
             return Ok(userdto);
         }
         [HttpPut("ChangeName")]
@@ -81,7 +89,7 @@ namespace GraduationProject.API.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDto model)
         {
-            if (ChackEamil(model.Email).Result.Value)
+            if (CheckEamil(model.Email).Result.Value)
                 return BadRequest(new ApiRespones(400)
                 {
                     Message  = "This email already exists"
@@ -103,10 +111,11 @@ namespace GraduationProject.API.Controllers
             }
             return Ok(new UserDto()
             {
+                UserId = user.Id, 
                 FullName = user.FullName,
                 Email = user.Email,
                 Token = await tokenService.CreatTokeAysnc(user, _userManager)
-            });
+            }) ;
         }
 
         [HttpPost("logIn")]
@@ -122,10 +131,14 @@ namespace GraduationProject.API.Controllers
                 return Unauthorized(new ApiRespones(401));
             return Ok(new UserDto()
             {
+
                 FullName = user.FullName,
                 Email = user.Email,
+                UserId = user.Id,
+                Image = user.Image,
+                IsAdmin = await _userManager.IsInRoleAsync(user , "Admin"),
                 Token = await tokenService.CreatTokeAysnc(user, _userManager)
-            });
+            }); ;
 
         }
         [HttpGet("ForgetPassword")]
@@ -221,7 +234,7 @@ namespace GraduationProject.API.Controllers
                 user.Image = ImageSetting.UplodaImage(Image, "Users");
                 await _userManager.UpdateAsync(user);
     
-                ; return Ok(new ApiRespones(200, "Image Added"));
+                 return Ok(new ApiRespones(200, "Image Added"));
             }
             catch (Exception ex)
             {
@@ -251,7 +264,7 @@ namespace GraduationProject.API.Controllers
             }
         }
         [HttpGet("EmailExited")]
-        public async Task<ActionResult<bool>> ChackEamil(string Email)
+        public async Task<ActionResult<bool>> CheckEamil(string Email)
         {
             return await _userManager.FindByEmailAsync(Email) is not null;
         }

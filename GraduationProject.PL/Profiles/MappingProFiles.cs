@@ -20,9 +20,14 @@ namespace GraduationProject.API.Profiles
                 .ForMember(p => p.Id, p => p.MapFrom(x => x.Id)).
                  ForMember(p => p.Content, p => p.MapFrom(x => x.Content)).
                  ForMember(p => p.Image, p => p.MapFrom(x => x.Image)).
-                 ForMember(p=>p.UserId , p=>p.MapFrom(x=>x.AppUserId)).ReverseMap(); 
+                 ForMember(p=>p.UserId , p=>p.MapFrom(x=>x.AppUserId))
+                 .ForMember(p=>p.UserImage, p=>p.MapFrom(x=>x.AppUser.Image))
+                 .ForMember(p=>p.UserName , p=>p.MapFrom(x=>x.AppUser.FullName))
+                 .ForMember(p=>p.Comments , p=>p.MapFrom(x=>x.Comments.Count())).ReverseMap(); 
             CreateMap<Comment , GetCommentDto>().
-                ForMember(p=>p.UserId , p=>p.MapFrom(x=>x.AppUserId)).ReverseMap();
+                ForMember(p=>p.UserId , p=>p.MapFrom(x=>x.AppUserId))
+                .ForMember(p=>p.UserName , p=>p.MapFrom(x=>x.AppUser.FullName))
+                .ForMember(p=>p.UserImage , p=>p.MapFrom(x=>x.AppUser.Image)).ReverseMap();
         }
     }
 }

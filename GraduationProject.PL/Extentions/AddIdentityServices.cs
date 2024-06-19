@@ -16,7 +16,6 @@ namespace GraduationProject.API.Extentions
 
 
             services.AddScoped<ITokenService, TokenService>();
-
             services.AddIdentity<AppUser, IdentityRole>().
                 AddEntityFrameworkStores<AppDbContext>().
                 AddDefaultTokenProviders();

@@ -43,11 +43,11 @@ namespace BLL.Repository
             var type = typeof(T).Name;
             if (type =="Disease")
               return await _context.Diseases.Include(d=>d.Category).Include(d=>d.Treatments).ThenInclude(d=>d.Treatment).ToListAsync() as IEnumerable<T>;
-            if (type==nameof(Post))
-              return await _context.Posts.Include(p=>p.postReacts).Include(d=>d.Comments).ThenInclude(d=>d.comment).OrderByDescending(p=>p.CreationDate).OrderByDescending(p=>p.likes+p.DisLikes)
+            if (type == nameof(Post))
+                return await _context.Posts.OrderByDescending(p=>p.Id).Include(p=>p.AppUser).Include(p => p.postReacts).Include(d => d.Comments).ThenInclude(d => d.comment).Include(p=>p.AppUser) 
                     .ToListAsync() as IEnumerable<T>;
             if (type == nameof(Comment))
-                return await _context.Comments.Include(c=>c.comments)
+                return await _context.Comments.Include(c=>c.comments).Include(c=>c.AppUser)
                       .ToListAsync() as IEnumerable<T>;
             return await _context.Set<T>().ToListAsync(); 
         
@@ -61,9 +61,9 @@ namespace BLL.Repository
                return await _context.Diseases.Include(d => d.Category).Include(d=>d.Treatments).ThenInclude(d=>d.Treatment).FirstOrDefaultAsync(d => d.Id == id) as T; 
            }
            if (type == nameof(Post))
-                return await  _context.Posts.Include(p=>p.postReacts).Include(p=>p.Comments).FirstOrDefaultAsync(c=>c.Id==id) as T;
+                return await  _context.Posts.Include(p=>p.postReacts).Include(p=>p.AppUser).Include(p=>p.Comments).FirstOrDefaultAsync(c=>c.Id==id) as T;
             if (type == nameof(Comment))
-                return await _context.Comments.Include(c=>c.comments).Include(p => p.comments).FirstOrDefaultAsync(c => c.Id == id) as T;
+                return await _context.Comments.Include(c=>c.comments).Include(c=>c.AppUser).Include(p => p.comments).FirstOrDefaultAsync(c => c.Id == id) as T;
             return await _context.Set<T>().FindAsync(id); 
         }
 

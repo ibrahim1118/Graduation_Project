@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using DAL.Entity;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,5 +14,7 @@ namespace DAL.AuthEntity
 
         public string?  Image {  get; set; }
         public DateTime CreatedDate { get; set; }   
+
+        public IEnumerable<UserLocation> userLocations { get; set; }
     }
 }
