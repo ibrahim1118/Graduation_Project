@@ -13,5 +13,7 @@ namespace BLL.IRepository
 
         public Task AddReact(CommentReact react);
         public Task DeleteReact(CommentReact react);
+
+        public Task <IEnumerable<Comment>> GetCommentsByPostId(int Postid);
     }
 }

@@ -94,7 +94,7 @@ namespace GraduationProject.API.Controllers
         }
 
         [HttpPost("AddAdmin")]
-        [Authorize(Roles ="Admin")]
+        //[Authorize(Roles ="Admin")]
         public async Task<ActionResult> AddAdmin(string Email)
         {
             var user = await userManager.FindByEmailAsync(Email);

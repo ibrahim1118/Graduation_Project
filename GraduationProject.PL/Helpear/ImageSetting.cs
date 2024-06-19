@@ -20,9 +20,10 @@
 
 		public static void DeleteImage(string Filename , string FolderNmae)
 		{
-			var FilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", Filename);
+			var FilePath = Path.Combine(Directory.GetCurrentDirectory(), Filename);
 
-			if (File.Exists(FilePath)) { 
+			if (File.Exists(FilePath)) {
+		       
 			   File.Delete(FilePath);	
 			}
 		}

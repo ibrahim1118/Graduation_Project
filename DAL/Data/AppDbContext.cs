@@ -50,6 +50,9 @@ namespace DAL.Data
 
         public DbSet<PostReact> PostReactes { get; set; }
         public DbSet<CommentReact> CommentReactes { get; set; }
+
+        public DbSet<UserLocation> UserLocations { get; set; }
+        public DbSet<UserReview> UserReviews { get; set; }
     
     }
 }

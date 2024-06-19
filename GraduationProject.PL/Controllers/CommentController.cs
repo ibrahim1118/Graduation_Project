@@ -57,7 +57,7 @@ namespace GraduationProject.API.Controllers
         public async Task<ActionResult> AddComment(AddCommentDto commentDto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var post = postRepo.GetById(commentDto.PostId);
+            var post = await postRepo.GetById(commentDto.PostId);
             var user = await userManager.FindByIdAsync(userId);
             if (user is null)
                 return BadRequest(new ApiRespones(400, "User Not Found")); 
@@ -96,6 +96,26 @@ namespace GraduationProject.API.Controllers
             }
         }
 
+        [HttpGet("GetCommentByPostId")]
+        public async Task<ActionResult> GetCommentByPostId(int postId)
+        {
+            try
+            {
+                var comments = await commentRepo.GetCommentsByPostId(postId);
+                if (comments is null)
+                {
+                    return NotFound(new ApiRespones(404, "Post Not Fount"));
+
+
+                }
+                var comment = mapper.Map<IEnumerable<GetCommentDto>>(comments);
+                return Ok(comment);
+            }catch(Exception ex)
+            {
+                return BadRequest(new ApiRespones(400, ex.Message)); 
+            }
+        }
+
         [HttpPost("AddReact")]
         [Authorize]
         public async Task<ActionResult> AddReact(ReactDto reactDto)
@@ -125,7 +145,12 @@ namespace GraduationProject.API.Controllers
                 await commentRepo.AddReact(react);
                 comment = await commentRepo.GetById(reactDto.ObjectId);
                 var commentDto = mapper.Map<GetCommentDto>(comment);
-                return Ok(commentDto);
+                return Ok(new
+                {
+                    id = comment.Id , 
+                    likes = comment.likes, 
+                    dislikes = comment.DisLikes
+                });
             }catch (Exception ex)
             {
                 return BadRequest(new ApiRespones(400, ex.Message));
@@ -179,6 +204,7 @@ namespace GraduationProject.API.Controllers
             }
             if (commentDto.Image is not null)
             {
+                if (comment.Image is not null)
                 ImageSetting.DeleteImage(comment.Image, "Comment");
                 comment.Image = ImageSetting.UplodaImage(commentDto.Image, "Comment");
             }
@@ -187,6 +213,33 @@ namespace GraduationProject.API.Controllers
             await commentRepo.Update(comment);
             return Ok(comment);
         }
-   
+        [HttpDelete("DeleteCommentImage")]
+        [Authorize]
+        public async Task<ActionResult> DeletePostImage(int commentId)
+        {
+            try
+            {
+
+                var comment = await commentRepo.GetById(commentId);
+                if (comment is null)
+                    return NotFound(new ApiRespones(404, "Not Found"));
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (userId != comment.AppUserId)
+                    return Unauthorized(new ApiRespones(401, "Not Authorized"));
+                if (comment.Image != null)
+                {
+                    ImageSetting.DeleteImage(comment.Image, "Post");
+                    comment.Image = null;
+                    await commentRepo.Update(comment);
+                }
+                return Ok(new ApiRespones(200, "Image Deleted"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiRespones(400, ex.Message));
+            }
+
+        }
+
     }
 }

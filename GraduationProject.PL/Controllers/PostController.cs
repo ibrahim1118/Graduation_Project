@@ -86,8 +86,12 @@ namespace GraduationProject.API.Controllers
                 };
                 await postRepo.AddReact(react);
                 var post = await postRepo.GetById(reactDto.ObjectId);
-                var postDto = mapper.Map<GetPostDto>(post);
-                return Ok(postDto);
+                return Ok(new
+                {
+                    PostId = post.Id,
+                    Likes = post.likes,
+                    Dislikes = post.DisLikes
+                });
             }catch(Exception ex)
             {
                 return BadRequest(new ApiRespones(400, ex.Message));
@@ -159,7 +163,8 @@ namespace GraduationProject.API.Controllers
                     return Unauthorized(new ApiRespones(401, "Not Authorized"));
                 if (postdto.Image is not null)
                 {
-                    ImageSetting.DeleteImage(post.Image, "Post");
+                    if (post.Image is not null)
+                        ImageSetting.DeleteImage(post.Image, "Post");
                     post.Image = ImageSetting.UplodaImage(postdto.Image, "Post");
                 }
                 if (postdto.Content is not null)
@@ -207,7 +212,32 @@ namespace GraduationProject.API.Controllers
                 return BadRequest(new ApiRespones(400 , ex.Message));
             }
         }
-        
+        [HttpDelete("DeletePostImage")]
+        [Authorize]
+        public async Task<ActionResult> DeletePostImage(int postId)
+        {
+            try
+            {
+
+                var post = await postRepo.GetById(postId);
+                if (post is null)
+                    return NotFound(new ApiRespones(404, "Not Found"));
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (userId != post.AppUserId)
+                    return Unauthorized(new ApiRespones(401, "Not Authorized"));
+                if (post.Image != null)
+                {   ImageSetting.DeleteImage(post.Image, "Post");
+                    post.Image = null;
+                    await postRepo.Update(post);
+                }
+                return Ok(new ApiRespones(200, "Image Deleted")); 
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(new ApiRespones(400, ex.Message)); 
+            }
+
+        }
 
     }
 }

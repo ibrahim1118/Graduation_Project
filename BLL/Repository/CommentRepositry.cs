@@ -4,6 +4,7 @@ using DAL.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -101,6 +102,11 @@ namespace BLL.Repository
         {
             context.CommentReactes.Remove(react);
            await context.SaveChangesAsync(); 
+        }
+
+        public async Task<IEnumerable<Comment>> GetCommentsByPostId(int Postid)
+        {
+            return await context.Comments.Where(c => c.PostId == Postid).Include(c => c.AppUser).ToArrayAsync() ; 
         }
     }
 }

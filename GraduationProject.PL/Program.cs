@@ -6,6 +6,7 @@ using GraduationProject.API.Extentions;
 using GraduationProject.API.Profiles;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +15,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(/*option =>
+ option.AddSecurityDefinition(name: "Bearer", new OpenApiSecurityScheme
+ {
+     Name = "Authorization" , 
+     Type = SecuritySchemeType.ApiKey, 
+     Scheme = "Bearer", 
+     BearerFormat = "JWT", 
+     In = ParameterLocation.Header, 
+     Description = "Enter your Jwt key"
+ })*/);
 
 builder.Services.AddAutoMapper(o => o.AddProfile(new MappingProFiles())); 
 
@@ -24,12 +34,16 @@ builder.Services.AddDbContext<AppDbContext>(option =>
 
 builder.Services.AddScoped<IDiseaseRepositry, DiseaseRepositry>(); 
 builder.Services.AddScoped<IPostRepositry, PostRepostiry>(); 
-builder.Services.AddScoped<ICommentRepositry, CommentRepositry>(); 
-
+builder.Services.AddScoped<ICommentRepositry, CommentRepositry>();
+builder.Services.AddScoped<IReviewRepository, ReviewsRepositry>();
+builder.Services.AddScoped<ILocationRepository, LocationRepository>();
+builder.Services.AddHttpClient();
 // Inject GenreicREposity
 builder.Services.AddScoped(typeof(IGenricRepository<>), typeof(GenricRepository<>));
 //Add Identity and JWT Services
 builder.Services.AddIdentityService(builder.Configuration);
+
+
 
 builder.Services.AddCors(Option =>
 {
