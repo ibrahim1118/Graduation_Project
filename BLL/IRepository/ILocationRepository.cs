@@ -10,5 +10,7 @@ namespace BLL.IRepository
     public interface ILocationRepository : IGenricRepository<UserLocation>
     {
         public IEnumerable<UserLocation> GetNearestUsers(decimal latitude, decimal longtude);
+        public Task AddUserToken(string userid, string Token);
+    
     }
 }

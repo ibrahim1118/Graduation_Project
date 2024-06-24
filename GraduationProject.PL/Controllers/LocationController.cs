@@ -1,4 +1,5 @@
 ﻿using BLL.IRepository;
+using BLL.UnitOfwrok;
 using DAL.AuthEntity;
 using DAL.Entity;
 using GraduationProject.API.DTOS;
@@ -15,18 +16,18 @@ namespace GraduationProject.API.Controllers
     [ApiController]
     public class LocationController : ControllerBase
     {
-        private readonly ILocationRepository locationRepository;
+        private readonly IUnitOfWork unitOfWork;
         private readonly UserManager<AppUser> userManager;
 
-        public LocationController(ILocationRepository locationRepository , UserManager<AppUser> userManager)
+        public LocationController(IUnitOfWork unitOfWork , UserManager<AppUser> userManager)
         {
-            this.locationRepository = locationRepository;
+            this.unitOfWork = unitOfWork;
             this.userManager = userManager;
         }
 
         [HttpPost("AddUserLocation")]
         [Authorize]
-        public async Task<ActionResult> AddUserLocation(decimal Latitude, decimal Longitude)
+        public async Task<ActionResult> AddUserLocation(LocationDto locationDto)
         {
             try
             {
@@ -36,10 +37,10 @@ namespace GraduationProject.API.Controllers
                 {
                     return BadRequest(new ApiRespones(400, "InValid Tokn"));
                 }
-                await locationRepository.Add(new UserLocation
+                await unitOfWork.locationRepository().Add(new UserLocation
                 {
-                    latitude = Latitude,
-                    longitude = Longitude,
+                    latitude = locationDto.Latitude,
+                    longitude = locationDto.Longitude,
                     AppUserId = userId
                 });
                 return Ok(new ApiRespones(200 , "Location Added"));
@@ -51,23 +52,32 @@ namespace GraduationProject.API.Controllers
         [HttpGet("GetNearestUsers")]
         public async Task<ActionResult> GetNearestUsers (decimal latitude,  decimal longitude)
         {
-            var user =  locationRepository.GetNearestUsers(latitude, longitude);
-            var res = user.Select(u => new UserLocationDto()
+            var user =  unitOfWork.locationRepository().GetNearestUsers(latitude, longitude);
+            HashSet<UserLocationDto> res = user.Select(u => new UserLocationDto()
             {
-                
-                latitude = u.latitude,
-                longitude = u.longitude,
-                UserId = u.AppUser.Id,
-                UserName = u.AppUser.FullName,
-                Email = u.AppUser.Email
-            }) ;
+                Token = u.Token,
+                UserId = u.AppUserId,
+            }).ToHashSet<UserLocationDto>() ;
             return Ok(res);
         }
         [HttpGet("GetAll")]
         public async Task<ActionResult> GetAll()
         {
-            var res = await locationRepository.GetAll();
+            var res = await unitOfWork.locationRepository().GetAll();
             return Ok(res); 
         }
+        [HttpPost("AddUserToken")] 
+        public async Task<ActionResult> AddUserToken(string userId, string Token)
+        {
+            try {
+                await unitOfWork.locationRepository().AddUserToken(userId, Token);
+                return Ok(new ApiRespones(200 , "Token Added"));
+            }catch(Exception ex)
+            {
+                return BadRequest(new ApiRespones(400, ex.Message)); 
+            }
+
+        }
+
     }
 }

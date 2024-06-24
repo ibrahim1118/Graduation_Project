@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BLL.IRepository;
+using BLL.UnitOfwrok;
 using DAL.Entity;
 using GraduationProject.API.DTOS;
 using GraduationProject.API.ErrorsHandl;
@@ -14,13 +15,14 @@ namespace GraduationProject.API.Controllers
    
     public class CategoryController : ControllerBase
     {
-        private readonly IGenricRepository<Category> _categoryRepo;
+        private readonly IUnitOfWork unitOfWork;
         private readonly IMapper _mapper;
 
-        public CategoryController(IGenricRepository<Category> _CategoryRepo,
+        public CategoryController( IUnitOfWork unitOfWork, 
             IMapper mapper)
         {
-            _categoryRepo = _CategoryRepo;
+            this.unitOfWork = unitOfWork;
+            
             _mapper = mapper;
         }
 
@@ -28,7 +30,7 @@ namespace GraduationProject.API.Controllers
         [Authorize]
         public async Task<ActionResult> GetAll()
         {
-            var category = await _categoryRepo.GetAll();
+            var category = await unitOfWork.Repostitry<Category>().GetAll();
             var categoryDto = _mapper.Map<IEnumerable<CategoryDto>>(category).ToList();
             return Ok(categoryDto);
         }
@@ -40,7 +42,7 @@ namespace GraduationProject.API.Controllers
             categoryDto.CreatedDate = DateTime.Now;
             var category = _mapper.Map<Category>(categoryDto);
             try {
-                await _categoryRepo.Add(category);
+                await unitOfWork.Repostitry<Category>().Add(category);
                 return Ok(new ApiRespones(200, "Category has added Successfully"));
             } 
             catch (Exception ex)
@@ -52,11 +54,11 @@ namespace GraduationProject.API.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> DeleteCategory(int id)
         {
-            var category = await _categoryRepo.GetById(id);
+            var category = await unitOfWork.Repostitry<Category>().GetById(id);
             if (category is null)
                 return NotFound(new ApiRespones(404));
             try {
-                await _categoryRepo.Delete(category);
+                await unitOfWork.Repostitry<Category>().Delete(category);
                 return Ok(new ApiRespones(200, "Category has Deleted Successfully"));
             } catch (Exception ex)
             {
@@ -69,7 +71,7 @@ namespace GraduationProject.API.Controllers
         [Authorize]
         public async Task<ActionResult> GetTipByid(int id)
         {
-            var tip = await _categoryRepo.GetById(id);
+            var tip = await unitOfWork.Repostitry<Category>().GetById(id);
             if (tip is null)
                 return NotFound(new ApiRespones(404 , "This Category not Found"));
             var categoryDto = _mapper.Map<CategoryDto>(tip);
@@ -82,13 +84,13 @@ namespace GraduationProject.API.Controllers
         {
             if (categoryDto.Id is null)
                 return BadRequest(new ApiRespones(400));
-            var category = await _categoryRepo.GetById(categoryDto.Id.Value);
+            var category = await unitOfWork.Repostitry<Category>().GetById(categoryDto.Id.Value);
             if (category is null)
                 return NotFound(new ApiRespones(404, $"No Category with {categoryDto.Id}"));
             category.Name = categoryDto.Name;
             category.CreatedDate = DateTime.Now;
             try {
-                await _categoryRepo.Update(category);
+                await unitOfWork.Repostitry<Category>().Update(category);
                 return Ok(new ApiRespones(200, "Category has Updated Successfully"));
             }
              catch(Exception ex) { return BadRequest(

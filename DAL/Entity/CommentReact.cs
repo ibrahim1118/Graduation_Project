@@ -16,9 +16,10 @@ namespace DAL.Entity
         public Comment comment { get; set; }
         public int CommentId { get; set; }
 
-        [ForeignKey(nameof(userId))]
+
         public AppUser appUser { get; set; }
 
+        [ForeignKey(nameof(appUser))]
         public string userId { get; set; }
 
         public bool like { get; set; }

@@ -1,6 +1,7 @@
 ﻿using Adminpanal.Hellper;
 using AutoMapper;
 using BLL.IRepository;
+using BLL.UnitOfwrok;
 using DAL.Entity;
 using GraduationProject.API.DTOS;
 using GraduationProject.API.ErrorsHandl;
@@ -16,20 +17,22 @@ namespace GraduationProject.API.Controllers
     //[Authorize]
     public class TipsController : ControllerBase
     {
-        private readonly IGenricRepository<Tips> _tips;
+
+        private readonly IUnitOfWork unitOfWork;
         private readonly IMapper _mapper;
 
-        public TipsController(IGenricRepository<Tips> tips,IMapper mapper)
+        public TipsController(IUnitOfWork unitOfWork,IMapper mapper)
         {
-            _tips = tips;
-           _mapper = mapper;
+          
+            this.unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         [HttpGet("GetAll")]
        // [Authorize]
         public async Task<ActionResult> GetAll()
         {
-            var Tips = await _tips.GetAll();
+            var Tips = await unitOfWork.Repostitry<Tips>().GetAll();
             var TipsDto = Tips.Select(t => new GetTipDto
             {
                 id = t.id,
@@ -59,7 +62,7 @@ namespace GraduationProject.API.Controllers
             };
             try
             {
-                await _tips.Add(tip); 
+                await unitOfWork.Repostitry<Tips>().Add(tip); 
                 return Ok(new ApiRespones(200, "tip added Successfully"));
             }
             catch(Exception ex)
@@ -72,12 +75,12 @@ namespace GraduationProject.API.Controllers
         public async Task<ActionResult> DeleteTip(int id)
         {
             try {
-                var tip = await _tips.GetById(id);
+                var tip = await unitOfWork.Repostitry<Tips>().GetById(id);
                 if (tip is null)
                     return NotFound(new ApiRespones(404));
                 if (tip.Image is not null)
                     ImageSetting.DeleteImage(tip.Image, "Tips");
-                await _tips.Delete(tip);
+                await unitOfWork.Repostitry<Tips>().Delete(tip);
                 return Ok(new ApiRespones(200, "tip Deleted Successfully"));
             }catch(Exception ex)
             {
@@ -89,7 +92,7 @@ namespace GraduationProject.API.Controllers
         [Authorize]
         public async Task<ActionResult> GetTipByid(int id)
         {
-            var tip = await _tips.GetById(id);
+            var tip = await unitOfWork.Repostitry<Tips>().GetById(id);
             if (tip is null)
                 return NotFound(new ApiRespones(404 , "This tip not Found"));
             var tipDto = new GetTipDto()
@@ -110,7 +113,7 @@ namespace GraduationProject.API.Controllers
             try {
                 if (tipDto.id is null)
                     return BadRequest(new ApiRespones(400));
-                var tip = await _tips.GetById(tipDto.id.Value);
+                var tip = await unitOfWork.Repostitry<Tips>().GetById(tipDto.id.Value);
                 if (tip is null)
                     return NotFound(new ApiRespones(404, $"No Tips with {tipDto.id}"));
                 if (tipDto.Image is not null)
@@ -122,7 +125,7 @@ namespace GraduationProject.API.Controllers
                 tip.Description = tipDto.description;
                 tip.Title = tipDto.Title;
                 tip.CreateDate = DateTime.Now;
-                await _tips.Update(tip);
+                await unitOfWork.Repostitry<Tips>().Update(tip);
                 return Ok(new ApiRespones(200, "tip Updated Successfully"));
             }catch(Exception ex)
             {

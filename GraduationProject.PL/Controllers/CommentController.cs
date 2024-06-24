@@ -1,6 +1,7 @@
 ﻿using Adminpanal.Hellper;
 using AutoMapper;
 using BLL.IRepository;
+using BLL.UnitOfwrok;
 using DAL.AuthEntity;
 using DAL.Entity;
 using GraduationProject.API.DTOS;
@@ -19,20 +20,19 @@ namespace GraduationProject.API.Controllers
     [ApiController]
     public class CommentController : ControllerBase
     {
-        private readonly ICommentRepositry commentRepo;
+       
+        private readonly IUnitOfWork unitOfWork;
         private readonly IMapper mapper;
-        private readonly IGenricRepository<Post> postRepo;
         private readonly UserManager<AppUser> userManager;
 
-        public CommentController(ICommentRepositry commentRepo,
-            IMapper mapper , 
-            IGenricRepository<Post> PostRepo
+        public CommentController(IUnitOfWork unitOfWork,
+            IMapper mapper 
             ,UserManager<AppUser> userManager)
         {
            
-            this.commentRepo = commentRepo;
+            
+            this.unitOfWork = unitOfWork;
             this.mapper = mapper;
-            postRepo = PostRepo;
             this.userManager = userManager;
         }
 
@@ -41,8 +41,8 @@ namespace GraduationProject.API.Controllers
         {
             try
             {
-               
-                var comment = (List<Comment>)await commentRepo.GetAll();
+                 
+                var comment = (List<Comment>)await unitOfWork.CommentRepositry().GetAll();
                 comment.RemoveAll(c => c.ParentId is not null);
                 var respone = mapper.Map<IEnumerable<GetCommentDto>>(comment);
                 return Ok(respone);
@@ -57,7 +57,7 @@ namespace GraduationProject.API.Controllers
         public async Task<ActionResult> AddComment(AddCommentDto commentDto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var post = await postRepo.GetById(commentDto.PostId);
+            var post = await unitOfWork.PostRepositry().GetById(commentDto.PostId);
             var user = await userManager.FindByIdAsync(userId);
             if (user is null)
                 return BadRequest(new ApiRespones(400, "User Not Found")); 
@@ -85,9 +85,9 @@ namespace GraduationProject.API.Controllers
             try
             {
                 if (comment.ParentId is not null)
-                  await   commentRepo.AddReplie(comment);
+                  await  unitOfWork.CommentRepositry().AddReplie(comment);
                 else 
-                await commentRepo.Add(comment);
+                await unitOfWork.CommentRepositry().Add(comment);
                 return Ok(new ApiRespones(200, "Comment Added")); 
 
             }catch (Exception ex)
@@ -97,11 +97,11 @@ namespace GraduationProject.API.Controllers
         }
 
         [HttpGet("GetCommentByPostId")]
-        public async Task<ActionResult> GetCommentByPostId(int postId)
+        public async Task<ActionResult> GetCommentByPostId(int postId  , string UserId)
         {
             try
             {
-                var comments = await commentRepo.GetCommentsByPostId(postId);
+                var comments = await unitOfWork.CommentRepositry().GetCommentsByPostId(postId);
                 if (comments is null)
                 {
                     return NotFound(new ApiRespones(404, "Post Not Fount"));
@@ -109,6 +109,16 @@ namespace GraduationProject.API.Controllers
 
                 }
                 var comment = mapper.Map<IEnumerable<GetCommentDto>>(comments);
+                var rect = unitOfWork.CommentRepositry().GetAllReact();
+                foreach (var com in comment)
+                {
+                    var rec = rect.FirstOrDefault(r => r.userId == UserId && r.CommentId == com.Id);
+                    if (rec is not null)
+                    {
+                        com.IsLiked = rec.like;
+                        com.IsDisliked = rec.disLike; 
+                    }
+                }
                 return Ok(comment);
             }catch(Exception ex)
             {
@@ -124,7 +134,7 @@ namespace GraduationProject.API.Controllers
             var user = await userManager.FindByIdAsync(userId);
             if (user is null)
                 return BadRequest(new ApiRespones(400, "User Not Found"));
-            var comment = await commentRepo.GetById(reactDto.ObjectId);
+            var comment = await unitOfWork.CommentRepositry().GetById(reactDto.ObjectId);
             if (comment is null)
             {
                 return BadRequest(new ApiRespones(400, "No post with this id"));
@@ -142,14 +152,18 @@ namespace GraduationProject.API.Controllers
             };
             try
             {
-                await commentRepo.AddReact(react);
-                comment = await commentRepo.GetById(reactDto.ObjectId);
+                await unitOfWork.CommentRepositry().AddReact(react);
+                comment = await unitOfWork.CommentRepositry().GetById(reactDto.ObjectId);
                 var commentDto = mapper.Map<GetCommentDto>(comment);
+                var rect = unitOfWork.CommentRepositry().GetReact(reactDto.ObjectId, userId); 
                 return Ok(new
                 {
                     id = comment.Id , 
                     likes = comment.likes, 
-                    dislikes = comment.DisLikes
+                    dislikes = comment.DisLikes, 
+                    IsLike = rect!=null? rect.like : false,
+                    IDisLike = rect!= null? rect.disLike: false
+
                 });
             }catch (Exception ex)
             {
@@ -163,7 +177,7 @@ namespace GraduationProject.API.Controllers
         public async Task<ActionResult> DeleteComment(int id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var comment = await commentRepo.GetById(id);
+            var comment = await unitOfWork.CommentRepositry().GetById(id);
             if (comment is null)
                 return NotFound(new ApiRespones(404));
             try
@@ -175,14 +189,14 @@ namespace GraduationProject.API.Controllers
                 if (comment.Image is not null)
                     ImageSetting.DeleteImage(comment.Image, "Comment");
                 foreach (var react in comment.Reactes)
-                    await commentRepo.DeleteReact(react);
+                    await unitOfWork.CommentRepositry().DeleteReact(react);
                 foreach (var item in comment.comments)
                 {
                     if (item.Image is not null)
                     ImageSetting.DeleteImage(item.Image, "Comment"); 
-                    await commentRepo.Delete(item);
+                    await unitOfWork.CommentRepositry().Delete(item);
                 }
-                await commentRepo.Delete(comment);
+                await  unitOfWork.CommentRepositry().Delete(comment);
                 return Ok(new ApiRespones(200, "Comment Deleted"));
             } catch (Exception ex)
             {
@@ -195,7 +209,7 @@ namespace GraduationProject.API.Controllers
         public async Task<ActionResult> EditComment(AddCommentDto commentDto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var comment = await commentRepo.GetById(commentDto.Id);
+            var comment = await unitOfWork.CommentRepositry().GetById(commentDto.Id);
             if (comment is null)
                 return NotFound(new ApiRespones(404, "Not Found"));
             if (userId != comment.AppUserId)
@@ -210,7 +224,7 @@ namespace GraduationProject.API.Controllers
             }
             if (commentDto.Content is not null)
                 comment.Content = commentDto.Content;
-            await commentRepo.Update(comment);
+            await unitOfWork.CommentRepositry().Update(comment);
             return Ok(comment);
         }
         [HttpDelete("DeleteCommentImage")]
@@ -220,7 +234,7 @@ namespace GraduationProject.API.Controllers
             try
             {
 
-                var comment = await commentRepo.GetById(commentId);
+                var comment = await unitOfWork.CommentRepositry().GetById(commentId);
                 if (comment is null)
                     return NotFound(new ApiRespones(404, "Not Found"));
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -230,7 +244,7 @@ namespace GraduationProject.API.Controllers
                 {
                     ImageSetting.DeleteImage(comment.Image, "Post");
                     comment.Image = null;
-                    await commentRepo.Update(comment);
+                    await unitOfWork.CommentRepositry().Update(comment);
                 }
                 return Ok(new ApiRespones(200, "Image Deleted"));
             }

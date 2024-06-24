@@ -1,4 +1,6 @@
-﻿namespace GraduationProject.API.DTOS
+﻿using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+
+namespace GraduationProject.API.DTOS
 {
     public class GetPostDto
     { 
@@ -14,5 +16,8 @@
         public string? UserImage { get; set; }
         public string UserName { get; set; }
         public string UserId { get; set; }
+    
+        public bool IsLike { get; set; }
+        public bool IsDisLike { get; set; }
     }
 }
