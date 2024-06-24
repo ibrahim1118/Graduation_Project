@@ -2,6 +2,7 @@
 using AutoMapper;
 using BLL.IRepository;
 using BLL.Repository;
+using BLL.UnitOfwrok;
 using DAL.AuthEntity;
 using DAL.Entity;
 using GraduationProject.API.DTOS;
@@ -23,35 +24,43 @@ namespace GraduationProject.API.Controllers
     [ApiController]
     public class PostController : ControllerBase
     {
-        private readonly IPostRepositry postRepo;
+        private readonly IUnitOfWork unitOfWork;
         private readonly IMapper mapper;
         private readonly IConfiguration configuration;
         private readonly UserManager<AppUser> userManager;
-        private readonly ICommentRepositry commentRepositry;
 
-        public PostController(IPostRepositry postRepo,
+        public PostController(IUnitOfWork unitOfWork,
             IMapper mapper,
             IConfiguration configuration,
-            UserManager<AppUser> userManager , 
-            ICommentRepositry commentRepositry)
+            UserManager<AppUser> userManager 
+  )
         {
-            this.postRepo = postRepo;
+            this.unitOfWork = unitOfWork;
             this.mapper = mapper;
             this.configuration = configuration;
             this.userManager = userManager;
-            this.commentRepositry = commentRepositry;
+           
         }
         [HttpGet("GetAllPosts")]
-        public async Task<ActionResult> GetAllPost()
+        public async Task<ActionResult> GetAllPost(string UserId)
         {
             try
             {
-                var posts = await postRepo.GetAll();
+                var posts = await unitOfWork.PostRepositry().GetAll();
+                var rect = unitOfWork.PostRepositry().GetAllReact();
                 foreach (var post in posts)
                 {
                     post.Comments.RemoveWhere(c => c.ParentId is not null);
                 }
                 var pstdto = mapper.Map<IEnumerable<GetPostDto>>(posts);
+                foreach (var post in pstdto)
+                {
+                    var rec = rect.FirstOrDefault(r => r.PostId == post.Id && r.userId == UserId);
+                    if (rec != null) {
+                        post.IsLike = rec.like;
+                        post.IsDisLike = rec.disLike; 
+                    }
+                }
                 return Ok(pstdto);
             }catch(Exception ex)
             {
@@ -68,7 +77,7 @@ namespace GraduationProject.API.Controllers
                 var user = await userManager.FindByIdAsync(userId);
                 if (user is null)
                     return BadRequest(new ApiRespones(400, "User Not Found"));
-                var pos = await postRepo.GetById(reactDto.ObjectId);
+                var pos = await unitOfWork.PostRepositry().GetById(reactDto.ObjectId);
                 if (pos is null)
                 {
                     return BadRequest(new ApiRespones(403, "No post with this id"));
@@ -80,17 +89,21 @@ namespace GraduationProject.API.Controllers
                 var react = new PostReact()
                 {
                     PostId = reactDto.ObjectId,
-                    userId = userId,
+                    userId = userId , 
                     like = reactDto.like,
                     disLike = reactDto.dislike
                 };
-                await postRepo.AddReact(react);
-                var post = await postRepo.GetById(reactDto.ObjectId);
+                await unitOfWork.PostRepositry().AddReact(react);
+                var post = await unitOfWork.PostRepositry().GetById(reactDto.ObjectId);
+                var rect = unitOfWork.PostRepositry().GetReact(userId, reactDto.ObjectId); 
                 return Ok(new
                 {
                     PostId = post.Id,
                     Likes = post.likes,
-                    Dislikes = post.DisLikes
+                    Dislikes = post.DisLikes, 
+                    Islike = rect!=null? rect.like: false, 
+                    IsDislike =rect!=null? rect.disLike : false,
+
                 });
             }catch(Exception ex)
             {
@@ -123,7 +136,7 @@ namespace GraduationProject.API.Controllers
             };
             try
             {
-                await postRepo.Add(post);
+                await unitOfWork.PostRepositry().Add(post);
                 return Ok(new ApiRespones(200, "Post Added")); 
             }
             catch (Exception ex)
@@ -138,7 +151,7 @@ namespace GraduationProject.API.Controllers
         {
             try
             {
-                var post = await postRepo.GetById(id);
+                var post = await unitOfWork.PostRepositry().GetById(id);
                 if (post is null)
                     return NotFound(new ApiRespones(404, $"no Post with this id {id}"));
                 post.Comments.RemoveWhere(com => com.ParentId != null);
@@ -155,7 +168,7 @@ namespace GraduationProject.API.Controllers
         {
             try
             {
-                var post = await postRepo.GetById(postdto.Id);
+                var post = await unitOfWork.PostRepositry().GetById(postdto.Id);
                 if (post is null)
                     return NotFound(new ApiRespones(404, "Not Found"));
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -169,7 +182,7 @@ namespace GraduationProject.API.Controllers
                 }
                 if (postdto.Content is not null)
                     post.Content = postdto.Content;
-                await postRepo.Update(post);
+                await unitOfWork.PostRepositry().Update(post);
                 return Ok(new ApiRespones(200, "Post Updated"));
                 //return Ok(post);
             }catch(Exception ex)
@@ -182,7 +195,7 @@ namespace GraduationProject.API.Controllers
         public async Task<ActionResult> DeletePost(int id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var post = await postRepo.GetById(id);
+            var post = await unitOfWork.PostRepositry().GetById(id);
             if (post is null)
                 return NotFound(new ApiRespones(404, "Not Fount")); 
             try
@@ -196,16 +209,16 @@ namespace GraduationProject.API.Controllers
                 if (post.Image is not null)
                 ImageSetting.DeleteImage(post.Image, "Post");
                 foreach (var react in post.postReacts)
-                    await postRepo.DeleteReact(react); 
+                    await unitOfWork.PostRepositry().DeleteReact(react); 
                 foreach(var comment in post.Comments)
                 {
                     if (comment.comments.Count > 0)
                     { foreach (var comment2 in comment.comments)
-                            await commentRepositry.Delete(comment2);
+                            await unitOfWork.CommentRepositry().Delete(comment2);
                     }
-                   await commentRepositry.Delete(comment); 
+                   await unitOfWork.CommentRepositry().Delete(comment); 
                 }
-                await postRepo.Delete(post);
+                await unitOfWork.PostRepositry().Delete(post);
                 return Ok(new ApiRespones(200, "Post Deleted")); 
             }catch (Exception ex)
             {
@@ -219,7 +232,7 @@ namespace GraduationProject.API.Controllers
             try
             {
 
-                var post = await postRepo.GetById(postId);
+                var post = await unitOfWork.PostRepositry().GetById(postId);
                 if (post is null)
                     return NotFound(new ApiRespones(404, "Not Found"));
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -228,7 +241,7 @@ namespace GraduationProject.API.Controllers
                 if (post.Image != null)
                 {   ImageSetting.DeleteImage(post.Image, "Post");
                     post.Image = null;
-                    await postRepo.Update(post);
+                    await unitOfWork.PostRepositry().Update(post);
                 }
                 return Ok(new ApiRespones(200, "Image Deleted")); 
             }

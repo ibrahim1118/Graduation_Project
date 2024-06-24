@@ -14,5 +14,9 @@
         public string UserName { get; set; }
         public string? UserImage { get; set; }
         public string UserId { get; set; }
+
+        public bool IsLiked { get; set;}
+
+        public bool IsDisliked { get; set;  }
     }
 }

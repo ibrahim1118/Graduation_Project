@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.WebSockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -66,5 +67,15 @@ namespace BLL.Repository
             return degrees * (decimal)Math.PI / 180.0m;
         }
 
+        public async Task AddUserToken(string userid, string Token)
+        {
+            var userLoctions = context.UserLocations.Where(u=>u.AppUserId == userid).ToList();
+            foreach (var user in userLoctions)
+            {
+                user.Token = Token;
+            }
+            context.UserLocations.UpdateRange(userLoctions);
+            await context.SaveChangesAsync();            
+        }
     }
 }

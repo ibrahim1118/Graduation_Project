@@ -108,5 +108,15 @@ namespace BLL.Repository
         {
             return await context.Comments.Where(c => c.PostId == Postid).Include(c => c.AppUser).ToArrayAsync() ; 
         }
+
+        public IEnumerable<CommentReact> GetAllReact()
+        {
+              return context.CommentReactes.ToList();
+        }
+
+        public CommentReact GetReact(int CommentId, string UserId)
+        {
+            return context.CommentReactes.FirstOrDefault(r => r.CommentId == CommentId && r.userId == UserId); 
+        }
     }
 }

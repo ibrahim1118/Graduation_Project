@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BLL.IRepository;
 using BLL.Repository;
+using BLL.UnitOfwrok;
 using DAL.Entity;
 using GraduationProject.API.DTOS;
 using GraduationProject.API.ErrorsHandl;
@@ -16,13 +17,15 @@ namespace GraduationProject.API.Controllers
     [ApiController]
     public class DiseaseController : ControllerBase
     {
-        private readonly IDiseaseRepositry _diseaseRepositry;
+ 
+        private readonly IUnitOfWork unitOfWork;
         private readonly IMapper mapper;
 
-        public DiseaseController(IDiseaseRepositry diseaseRepositry , 
+        public DiseaseController(IUnitOfWork unitOfWork, 
             IMapper mapper)
         {
-            _diseaseRepositry = diseaseRepositry;
+            
+            this.unitOfWork = unitOfWork;
             this.mapper = mapper;
         }
 
@@ -45,7 +48,7 @@ namespace GraduationProject.API.Controllers
 
             };
             
-                await _diseaseRepositry.Add(disease);
+                await unitOfWork.DiseaseRepositry().Add(disease);
                 return Ok(new ApiRespones(200, "Disease Added Successfully"));
             }
             catch (Exception ex)
@@ -61,7 +64,7 @@ namespace GraduationProject.API.Controllers
         {
             try
             {
-                var disease = await _diseaseRepositry.GetById(id);
+                var disease = await unitOfWork.DiseaseRepositry().GetById(id);
                 if (disease == null)
                 {
                     return NotFound(new ApiRespones(404, "Disease Not Found"));
@@ -102,7 +105,7 @@ namespace GraduationProject.API.Controllers
         {
             try
             {
-                var disease = await _diseaseRepositry.GetAll();
+                var disease = await unitOfWork.DiseaseRepositry().GetAll();
                 if (disease == null)
                 {
                     return NotFound();
@@ -143,12 +146,12 @@ namespace GraduationProject.API.Controllers
         public async Task<ActionResult> DeleteDisease(int id)
         {
             try { 
-            var disease = await _diseaseRepositry.GetById(id);
+            var disease = await unitOfWork.DiseaseRepositry().GetById(id);
             if (disease is null)
             {
                 return NotFound(new ApiRespones(404, "Disease Not Found"));
             }
-                await _diseaseRepositry.Delete(disease);
+                await unitOfWork.DiseaseRepositry().Delete(disease);
                 return Ok(new ApiRespones(200, "Disease Deleted Successfully"));
             }
             catch (Exception ex)
@@ -163,7 +166,7 @@ namespace GraduationProject.API.Controllers
         {
             try
             {
-                var disease = await _diseaseRepositry.Serach(name);
+                var disease = await unitOfWork.DiseaseRepositry().Serach(name);
                 if (disease is null)
                     return NotFound(new ApiRespones(404, "No Disease With this Name"));
                 var resopone = disease.Select(
@@ -206,7 +209,7 @@ namespace GraduationProject.API.Controllers
 
                 using var dateStream = new MemoryStream();
                 await diseasesDto.Image.CopyToAsync(dateStream);
-                var dises = await _diseaseRepositry.GetById(diseasesDto.Id); 
+                var dises = await unitOfWork.DiseaseRepositry().GetById(diseasesDto.Id); 
                 if (dises == null)
                 {
                     return NotFound(new ApiRespones(404 , "This Disease Not Fount"));
@@ -218,7 +221,7 @@ namespace GraduationProject.API.Controllers
                 dises.Info = diseasesDto.Info;
                 dises.Image = dateStream.ToArray();
                 dises.Treatments = diseasesDto.Treatments.Select(x => new DiseaseTreatment() { TreatmentId = x }).ToList(); 
-                await _diseaseRepositry.Update(dises);
+                await unitOfWork.DiseaseRepositry().Update(dises);
                 return Ok(new ApiRespones(200, "Disease Edite Successfully"));
             }
             catch (Exception ex)

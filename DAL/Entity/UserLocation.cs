@@ -16,7 +16,10 @@ namespace DAL.Entity
 
         public decimal longitude { get; set; }
 
+        public string?  Token { get; set; }
         public AppUser? AppUser { get; set; }
+
+
 
 
     }

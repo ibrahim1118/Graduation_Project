@@ -1,5 +1,6 @@
 using BLL.IRepository;
 using BLL.Repository;
+using BLL.UnitOfwrok;
 using DAL.AuthEntity;
 using DAL.Data;
 using GraduationProject.API.Extentions;
@@ -32,14 +33,15 @@ builder.Services.AddAutoMapper(o => o.AddProfile(new MappingProFiles()));
 builder.Services.AddDbContext<AppDbContext>(option =>
  option.UseSqlServer(builder.Configuration.GetConnectionString("ConStr")));
 
-builder.Services.AddScoped<IDiseaseRepositry, DiseaseRepositry>(); 
-builder.Services.AddScoped<IPostRepositry, PostRepostiry>(); 
-builder.Services.AddScoped<ICommentRepositry, CommentRepositry>();
+/*builder.Services.AddScoped<IDiseaseRepositry, DiseaseRepositry>(); 
+builder.Services.AddScoped<IPostRepositry, PostRepostiry>();*/ 
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>(); 
+/*builder.Services.AddScoped<ICommentRepositry, CommentRepositry>();
 builder.Services.AddScoped<IReviewRepository, ReviewsRepositry>();
-builder.Services.AddScoped<ILocationRepository, LocationRepository>();
+builder.Services.AddScoped<ILocationRepository, LocationRepository>();*/
 builder.Services.AddHttpClient();
 // Inject GenreicREposity
-builder.Services.AddScoped(typeof(IGenricRepository<>), typeof(GenricRepository<>));
+//builder.Services.AddScoped(typeof(IGenricRepository<>), typeof(GenricRepository<>));
 //Add Identity and JWT Services
 builder.Services.AddIdentityService(builder.Configuration);
 

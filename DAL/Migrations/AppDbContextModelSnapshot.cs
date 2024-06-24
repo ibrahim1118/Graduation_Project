@@ -378,11 +378,14 @@ namespace DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("Token")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<decimal>("latitude")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<double>("longitude")
-                        .HasColumnType("float");
+                    b.Property<decimal>("longitude")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 

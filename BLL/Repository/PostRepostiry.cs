@@ -80,10 +80,24 @@ namespace BLL.Repository
 
         }
 
+
         public async Task DeleteReact(PostReact react)
         {
             context.PostReactes.Remove(react); 
             await context.SaveChangesAsync();
+        }
+
+        public IEnumerable<PostReact> GetAllReact()
+        {
+           
+            return context.PostReactes.ToList();
+          
+        }
+
+        public PostReact GetReact(string userId, int postid)
+        {
+            return context.PostReactes.FirstOrDefault(r=>r.PostId == postid&&r.userId==userId);
+
         }
     }
 }

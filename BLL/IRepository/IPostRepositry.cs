@@ -13,6 +13,11 @@ namespace BLL.IRepository
         public Task DeleteReact(PostReact react);
 
 
+        public IEnumerable<PostReact> GetAllReact();
+
+        public PostReact GetReact(string userId, int postid);
+
+
 
     }
 }

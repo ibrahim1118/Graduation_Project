@@ -7,6 +7,7 @@ using BLL.IRepository;
 using DAL.Entity;
 using GraduationProject.API.ErrorsHandl;
 using Microsoft.AspNetCore.Authorization;
+using BLL.UnitOfwrok;
 
 namespace GraduationProject.API.Controllers
 {
@@ -15,12 +16,13 @@ namespace GraduationProject.API.Controllers
     public class ReviewsController : ControllerBase
     {
         private readonly HttpClient _httpClient;
-        private readonly IReviewRepository _userReviewRepo;
+        private readonly IUnitOfWork unitOfWork;
 
-        public ReviewsController(HttpClient httpClient , IReviewRepository userReviewRepo)
+        public ReviewsController(HttpClient httpClient , IUnitOfWork unitOfWork)
         {
             _httpClient = httpClient;
-            _userReviewRepo = userReviewRepo;
+            this.unitOfWork = unitOfWork;
+            
         }
 
         [HttpPost("AddReview")]
@@ -37,14 +39,14 @@ namespace GraduationProject.API.Controllers
                 {
                     var ress = res.Content.ReadAsStringAsync().Result;
                     var ob = JsonSerializer.Deserialize<predictionRes>(ress);
-                    await _userReviewRepo.Add(new UserReview()
+                    await unitOfWork.ReviewRepository().Add(new UserReview()
                     {
                         review = Reviews.Reviews,
                         type = ob.prediction
                     });
-                    var pos = await _userReviewRepo.GetReviewsbyType("Positive");
-                    var Neg =await _userReviewRepo.GetReviewsbyType("Negative");
-                    var all = await _userReviewRepo.GetAll(); 
+                    var pos = await unitOfWork.ReviewRepository().GetReviewsbyType("Positive");
+                    var Neg =await unitOfWork.ReviewRepository().GetReviewsbyType("Negative");
+                    var all = await unitOfWork.ReviewRepository().GetAll(); 
                     return Ok(new
                     {
                         Positive = $"{((decimal) pos.Count()/ all.Count())*100}%",
@@ -64,13 +66,21 @@ namespace GraduationProject.API.Controllers
         {
             try
             {
-                var rev = await _userReviewRepo.GetAll();
+                var rev = await unitOfWork.ReviewRepository().GetAll();
                 var res = rev.Select(r => new ReviewsDto()
                 {
                     Reviews = r.review,
                     Type = r.type,
-                }); 
-                return Ok(res); 
+                });
+                var pos = await unitOfWork.ReviewRepository().GetReviewsbyType("Positive");
+                var Neg = await unitOfWork.ReviewRepository().GetReviewsbyType("Negative");
+                var all = await unitOfWork.ReviewRepository().GetAll();
+                return Ok(new
+                {
+                    Positive = $"{((decimal)pos.Count() / all.Count()) * 100}%",
+                    Negative = $"{((decimal)Neg.Count() / all.Count()) * 100}%",
+                    Reviews = res
+                }) ;
             }
             catch(Exception ex)
             {
